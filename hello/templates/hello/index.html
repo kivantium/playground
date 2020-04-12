@@ -5,6 +5,11 @@
   <body>
   {% if request.user.is_authenticated %}
     <p>あなたはログインしています (screen_name: {{ user.access_token.screen_name }})</p>
+    <ul>
+    {% for tweet in timeline %}
+    <li>@{{ tweet.user.screen_name }}: {{ tweet.text }}</li>
+    {% endfor %}
+    </ul>
     <a href="/logout"><button type="button">ログアウト</button></a>
   {% else %}
     <p>あなたはログインしていません</p>
