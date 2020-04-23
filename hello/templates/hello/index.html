@@ -1,19 +1,73 @@
+<!doctype html>
 <html>
   <head>
-    <title>index</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>にじさーち</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <style>
+img { object-fit: cover; }
+.bm--card-equal-height {
+   display: flex;
+   flex-direction: column;
+   height: 100%;
+}
+.bm--card-equal-height .card-footer {
+   margin-top: auto;
+} </style>
   </head>
   <body>
-  {% if request.user.is_authenticated %}
-    <p>あなたはログインしています (screen_name: {{ user.access_token.screen_name }})</p>
-    <ul>
-    {% for tweet in timeline %}
-    <li>@{{ tweet.user.screen_name }}: {{ tweet.text }}</li>
-    {% endfor %}
-    </ul>
-    <a href="/logout"><button type="button">ログアウト</button></a>
-  {% else %}
-    <p>あなたはログインしていません</p>
-    <button type="button" onclick="location.href='{% url 'social:begin' 'twitter' %}'">Twitterでログイン</button>
-  {% endif %}
+  <nav class="navbar is-primary">
+    <div class="navbar-brand navbar-item">
+      <h1 class="title has-text-light">にじさーち</h1>
+    </div>
+    {% if request.user.is_authenticated %}
+    <div class="navbar-end">
+      <div class="navbar-item">
+      <a class="button is-light" href="/logout">ログアウト</a>
+      </div>
+    {% endif %}
+    </div>
+  </nav>
+  <section class="section">
+    <div class="container">
+      {% if request.user.is_authenticated %}
+      {% for tweets in timeline_chunked %}
+      <div class="columns is-mobile">
+        {% for tweet in tweets %}
+        <div class="column is-3">
+          <div class="card bm--card-equal-height">
+            <div class="card-content">
+              <div class="media">
+                <div class="media-left">
+                  <figure class="image is-48x48">
+                    <img src="{{ tweet.profile_image_url }}" alt="Profile image">
+                  </figure>
+                </div>
+                <div class="media-content">
+                  <p class="title is-4">{{ tweet.author.name }}</p>
+                  <p class="subtitle is-6">@{{ tweet.author.screen_name }}</p>
+                </div>
+              </div>
+              <div class="card-image">
+                <figure class="image is-square">
+                  <a href="https://twitter.com/i/web/status/{{ tweet.id_str }}" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ tweet.image_url }}" alt="main image">
+                  </a>
+                </figure>
+              </div>
+              <div class="content">{{ tweet.text }}</div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      {% endfor %}
+      {% else %}
+      <p>あなたはログインしていません</p>
+      <button type="button" onclick="location.href='{% url 'social:begin' 'twitter' %}'">Twitterでログイン</button>
+      {% endif %}
+    </div>
+  </section>
   </body>
 </html>
