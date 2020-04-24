@@ -10,6 +10,7 @@ django-heroku = "*"
 gunicorn = "*"
 social-auth-app-django = "*"
 tweepy = "*"
+torchvision = {file = "https://download.pytorch.org/whl/cpu/torchvision-0.5.0+cpu-cp36-cp36m-linux_x86_64.whl"}
 
 [requires]
 python_version = "3.6"
