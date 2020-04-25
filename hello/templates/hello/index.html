@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <style>
 img { object-fit: cover; }
+.container{
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+	grid-gap: 0.5em;
+}
 .bm--card-equal-height {
    display: flex;
    flex-direction: column;
@@ -33,35 +38,31 @@ img { object-fit: cover; }
     <div class="container">
       {% if request.user.is_authenticated %}
       {% for tweets in timeline_chunked %}
-      <div class="columns is-mobile">
-        {% for tweet in tweets %}
-        <div class="column is-3">
-          <div class="card bm--card-equal-height">
-            <div class="card-content">
-              <div class="media">
-                <div class="media-left">
-                  <figure class="image is-48x48">
-                    <img src="{{ tweet.profile_image_url }}" alt="Profile image">
-                  </figure>
-                </div>
-                <div class="media-content">
-                  <p class="title is-4">{{ tweet.author.name }}</p>
-                  <p class="subtitle is-6">@{{ tweet.author.screen_name }}</p>
-                </div>
-              </div>
-              <div class="card-image">
-                <figure class="image is-square">
-                  <a href="https://twitter.com/i/web/status/{{ tweet.id_str }}" target="_blank" rel="noopener noreferrer">
-                    <img src="{{ tweet.image_url }}" alt="main image">
-                  </a>
-                </figure>
-              </div>
-              <div class="content">{{ tweet.text }}</div>
+      {% for tweet in tweets %}
+      <div class="card bm--card-equal-height">
+        <div class="card-content">
+          <div class="media">
+            <div class="media-left">
+              <figure class="image is-48x48">
+                <img src="{{ tweet.profile_image_url }}" alt="Profile image">
+              </figure>
+            </div>
+            <div class="media-content">
+              <p class="title is-6">{{ tweet.author.name }}</p>
+              <p class="subtitle is-6">@{{ tweet.author.screen_name }}</p>
             </div>
           </div>
+          <div class="card-image">
+            <figure class="image is-square">
+              <a href="https://twitter.com/i/web/status/{{ tweet.id_str }}" target="_blank" rel="noopener noreferrer">
+                <img src="{{ tweet.image_url }}" alt="main image">
+              </a>
+            </figure>
+          </div>
+          <div class="content">{{ tweet.text }}</div>
         </div>
-        {% endfor %}
       </div>
+      {% endfor %}
       {% endfor %}
       {% else %}
       <p>あなたはログインしていません</p>

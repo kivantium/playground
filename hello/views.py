@@ -3,7 +3,6 @@ import re
 import urllib.request
 from urllib.parse import urlparse
 from PIL import Image
-from joblib import dump, load
 import tweepy
 
 from django.shortcuts import render
@@ -54,8 +53,7 @@ def index(request):
             for tweet in batch_tweet:
                 media_url = tweet.extended_entities['media'][0]['media_url']
                 filename = os.path.basename(urlparse(media_url).path)
-                filename = os.path.join(
-                    os.path.dirname(__file__), 'images', filename)
+                filename = os.path.join('/tmp', filename)
                 urllib.request.urlretrieve(media_url, filename)
                 img = Image.open(filename).convert('RGB')
                 img = data_transforms(img)
