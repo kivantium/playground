@@ -4,12 +4,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>にじさーち</title>
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
     <style>
 img { object-fit: cover; }
 .container{
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+	grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
 	grid-gap: 0.5em;
 }
 .bm--card-equal-height {
@@ -35,41 +37,72 @@ img { object-fit: cover; }
     </div>
   </nav>
   <section class="section">
+    <p>タイムラインからイラストのみを選んで表示します</p>
     {% if request.user.is_authenticated %}
-    <p>タイムラインの最新200ツイートに含まれるイラストを表示しています</p>
-    <div class="container">
-      {% for tweets in timeline_chunked %}
-      {% for tweet in tweets %}
-      <div class="card bm--card-equal-height">
-        <div class="card-content">
-          <div class="media">
-            <div class="media-left">
-              <figure class="image is-48x48">
-                <img src="{{ tweet.profile_image_url }}" alt="Profile image">
+    <div id="app">
+      <div class="container">
+        <div v-for="status in status_list" class="card bm--card-equal-height">
+          <div class="card-content">
+            <div class="media">
+              <div class="media-left">
+                <figure class="image is-48x48">
+                  <img v-bind:src="[[ status.profile_image_url ]]" alt="Profile image">
+                </figure>
+              </div>
+              <div class="media-content">
+                <p class="title is-6">[[ status.author.name ]]</p>
+                <p class="subtitle is-6">@[[ status.author.screen_name ]]</p>
+              </div>
+            </div>
+            <div class="card-image">
+              <figure class="image is-square">
+                <a v-bind:href="[['https://twitter.com/i/web/status/' + status.id_str ]]" target="_blank" rel="noopener noreferrer">
+                  <img v-bind:src="[[ status.image_url ]]" alt="main image">
+                </a>
               </figure>
             </div>
-            <div class="media-content">
-              <p class="title is-6">{{ tweet.author.name }}</p>
-              <p class="subtitle is-6">@{{ tweet.author.screen_name }}</p>
-            </div>
+            <div class="content">[[ status.text ]]</div>
           </div>
-          <div class="card-image">
-            <figure class="image is-square">
-              <a href="https://twitter.com/i/web/status/{{ tweet.id_str }}" target="_blank" rel="noopener noreferrer">
-                <img src="{{ tweet.image_url }}" alt="main image">
-              </a>
-            </figure>
-          </div>
-          <div class="content">{{ tweet.text }}</div>
         </div>
       </div>
-      {% endfor %}
-      {% endfor %}
+      <div v-if="limit_reached" class="notification is-warning is-light">取得できるツイート数の上限に達しました。</div>
+      <div v-if="closed" class="notification is-warning is-light">サーバーとの接続が切断されました</div>
     </div>
     {% else %}
     <p>利用するにはログインが必要です</p>
     <button type="button" onclick="location.href='{% url 'social:begin' 'twitter' %}'">Twitterでログイン</button>
     {% endif %}
   </section>
+  <script>
+    var vm = new Vue({
+      delimiters: ['[[', ']]'],
+      el: '#app',
+      data: {
+          status_list: [],
+          limit_reached: false,
+          closed: false,
+      },
+      mounted: function() {
+        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+        const chatSocket = new WebSocket(
+          ws_scheme + '://' + window.location.host + '/ws/chat/test/'
+        );
+        chatSocket.onmessage = function(e) {
+          const data = JSON.parse(e.data);
+          if(data.limit_reached) {
+            console.error('Reached rate limit');
+            vm.limit_reached = true;
+          } else {
+            vm.status_list.push(data.content);
+          }
+        };
+
+        chatSocket.onclose = function(e) {
+          console.error('Chat socket closed unexpectedly');
+          vm.closed = true;
+        };
+      }
+    })
+  </script>
   </body>
 </html>
