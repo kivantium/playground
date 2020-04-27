@@ -34,6 +34,7 @@ data_transforms = transforms.Compose([
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         user = self.scope["user"]
+        self.sender = None
         if user.is_authenticated:
             self.accept()
             user = UserSocialAuth.objects.get(user_id=user.id)
@@ -45,7 +46,8 @@ class ChatConsumer(WebsocketConsumer):
 
     def disconnect(self, close_code):
         self.connecting = False
-        self.sender.join()
+        if self.sender is not None:
+            self.sender.join()
 
     def receive(self, text_data):
         pass
