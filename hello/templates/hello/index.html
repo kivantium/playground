@@ -6,22 +6,9 @@
     <title>にじさーち</title>
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <style>
-img { object-fit: cover; }
-.container{
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px,1fr));
-	grid-gap: 0.5em;
-}
-.bm--card-equal-height {
-   display: flex;
-   flex-direction: column;
-   height: 100%;
-}
-.bm--card-equal-height .card-footer {
-   margin-top: auto;
-} </style>
+    <style> .media-content{ white-space: nowrap; overflow: hidden} </style>
   </head>
   <body>
   <nav class="navbar is-primary">
@@ -41,27 +28,31 @@ img { object-fit: cover; }
     {% if request.user.is_authenticated %}
     <div id="app">
       <div class="container">
-        <div v-for="status in status_list" class="card bm--card-equal-height">
-          <div class="card-content">
-            <div class="media">
-              <div class="media-left">
-                <figure class="image is-48x48">
-                  <img v-bind:src="[[ status.profile_image_url ]]" alt="Profile image">
-                </figure>
-              </div>
-              <div class="media-content">
-                <p class="title is-6">[[ status.author.name ]]</p>
-                <p class="subtitle is-6">@[[ status.author.screen_name ]]</p>
+        <div class="columns is-mobile is-multiline">
+          <div v-for="status in status_list" class="column is-4-desktop is-4-tablet is-6-mobile">
+            <div class="card">
+              <div class="card-content">
+                <div class="media">
+                  <div class="media-left">
+                    <figure class="image is-48x48">
+                      <img v-bind:src="[[ status.profile_image_url ]]" alt="Profile image">
+                    </figure>
+                  </div>
+                  <div class="media-content">
+                    <p class="title is-6">[[ status.author.name ]]</p>
+                    <p class="subtitle is-6">@[[ status.author.screen_name ]]</p>
+                  </div>
+                </div>
+                <div class="card-image">
+                  <figure class="image">
+                    <a v-bind:href="[['https://twitter.com/i/web/status/' + status.id_str ]]" target="_blank" rel="noopener noreferrer">
+                      <img v-bind:src="[[ status.image_url ]]" alt="main image">
+                    </a>
+                  </figure>
+                </div>
+                <div class="content">[[ status.text ]]</div>
               </div>
             </div>
-            <div class="card-image">
-              <figure class="image is-square">
-                <a v-bind:href="[['https://twitter.com/i/web/status/' + status.id_str ]]" target="_blank" rel="noopener noreferrer">
-                  <img v-bind:src="[[ status.image_url ]]" alt="main image">
-                </a>
-              </figure>
-            </div>
-            <div class="content">[[ status.text ]]</div>
           </div>
         </div>
       </div>
@@ -70,7 +61,9 @@ img { object-fit: cover; }
     </div>
     {% else %}
     <p>利用するにはログインが必要です</p>
-    <button type="button" onclick="location.href='{% url 'social:begin' 'twitter' %}'">Twitterでログイン</button>
+    <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+      <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
+    </button>
     {% endif %}
   </section>
   {% if request.user.is_authenticated %}
