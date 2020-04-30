@@ -1,23 +1,10 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ログアウト</title>
-    <script src="https://unpkg.com/vue"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-  </head>
-  <body>
-    <nav class="navbar is-primary">
-      <div class="navbar-brand navbar-item">
-        <h1 class="title has-text-light">にじさーち</h1>
-      </div>
-      </div>
-    </nav>
-    <section class="section">
-      <p>ログアウトしました</p>
-      <p><a href="/"><button type="button is-light">トップへ</button></a></p>
-    </section>
-  </body>
-</html>
+{% extends 'hello/base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="content">
+  <p>ログアウトしました</p>
+  <p><button class="button is-success" onclick="location.href='/'">トップへ</button></p>
+  </div>
+</section>
+{% endblock %}

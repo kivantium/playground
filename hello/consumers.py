@@ -63,7 +63,6 @@ class ChatConsumer(WebsocketConsumer):
     def receive(self, text_data):
         text_data_json = json.loads(text_data)
         selected = text_data_json['selected']
-        print("Received message:", selected)
         # Kill existing thread
         if self.sender is not None:
             self.sending = False
@@ -83,7 +82,6 @@ class ChatConsumer(WebsocketConsumer):
                     self.send(text_data=json.dumps({'limit_reached': True}))
                     break
 
-        print("selected:", selected)
         # Done is better than perfect!
         if selected == "home":
             for status in limit_handled(tweepy.Cursor(self.api.home_timeline, tweet_mode='extended').items()):

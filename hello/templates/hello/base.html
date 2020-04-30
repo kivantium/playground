@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>にじさーち</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <style>.twitter-tweet{ margin-bottom:0px !important;} 
+           .column{ padding-top: 0px !important; padding-bottom: 0px !important;} </style>
+  </head>
+  <body>
+    <div id="navBar">
+      <nav class="navbar is-primary">
+        <div class="navbar-brand">
+          <a class="navbar-item" href="/">
+            <h1 class="title has-text-light is-4">にじさーち</h1>
+          </a>
+          <a role="button" class="navbar-burger burger" aria-expanded="false" data-target="navMenu"
+                                                                              @click="isOpen = !isOpen" v-bind:class="{'is-active': isOpen}">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
+        </div>
+
+        <div id="navMenu" class="navbar-menu" v-bind:class="{'is-active': isOpen}"
+                          style="float: right">
+          <div class="navbar-end">
+            <div class="navbar-item">
+              {% if request.user.is_authenticated %}
+              <button class="button is-light" onclick="location.href='/logout'">ログアウト</button>
+              {% else %}
+              <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+                <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </nav>
+    </div>
+    {% block content %}
+    {% endblock %}
+    <script>
+      var navBar = new Vue({
+        el: '#navBar',
+        data: {
+          isOpen: false
+        }
+      })
+    </script>
+  </body>
+</html>
