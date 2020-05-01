@@ -4,19 +4,34 @@
 <section class="section">
   {% if request.user.is_authenticated %}
   <div id="app">
-    <div class="field">
-      <label class="label">リスト選択</label>
-      <div class="control">
-        <div class="select">
-          <select v-on:change="onChange()" v-model="selected">
-            <option value="home">ホーム</option>
-            {% for list in lists %}
-            <option value="{{ list.id }}">{{ list.name }}</option>
-            {% endfor %}
-          </select>
+    <div class="container">
+      <div class="tabs is-centered is-boxed is-fullwidth">
+        <ul>
+          <li class="is-active"><a><span class="icon"><i class="fab fa-twitter"></i></span>タイムライン</a></li>
+          <li><a><span class="icon"><i class="fas fa-images"></i></span>ギャラリー（未実装）</a></li>
+          <li><a><span class="icon"><i class="fas fa-crown"></i></span>ランキング（未実装）</a></li>
+          <li><a><span class="icon"><i class="fas fa-search"></i></span>検索（未実装）</a></li>
+        </ul>
+      </div>
+      <div class="content">
+        <p>タイムラインからイラストのツイートだけを選んで表示します。</p>
+        <div class="field">
+          <label class="label">リスト選択</label>
+          <p class="help">ホームタイムラインは読み込める数が少ないため、リストを使うことをおすすめします。</p>
+          <div class="control">
+            <div class="select">
+              <select v-on:change="onChange()" v-model="selected">
+                <option value="home">ホームタイムライン</option>
+                {% for list in lists %}
+                <option value="{{ list.id }}">{{ list.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <hr>
     <div class="container">
       <div class="columns is-mobile is-multiline">
         <div v-for="status_html in status_list" class="column is-4-desktop is-6-tablet is-12-mobile">
@@ -40,6 +55,7 @@
       <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
         <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
       </button>
+      <p>アクセス権限は今のところタイムラインの読み込みのみに利用しています。</p>
       <hr>
       <h3 class="subtitle is-5">実装済み機能</h3>
       <ul>
