@@ -3,8 +3,7 @@ gunicorn
 whitenoise
 social-auth-app-django
 tweepy
-https://download.pytorch.org/whl/cpu/torch-1.5.0%2Bcpu-cp36-cp36m-linux_x86_64.whl
-torchvision
 more-itertools
 onnxruntime
 channels
+pillow

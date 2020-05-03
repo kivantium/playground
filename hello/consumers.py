@@ -12,26 +12,23 @@ import onnxruntime
 from PIL import Image
 import urllib.request
 from urllib.parse import urlparse
-import torchvision.transforms as transforms
 
 from channels.generic.websocket import WebsocketConsumer
 from django.conf import settings
 from social_django.models import UserSocialAuth
 
+def crop_and_resize(img, size):
+    width, height = img.size
+    crop_size = min(width, height)
+    img_crop = img.crop(((width - crop_size) // 2, (height - crop_size) // 2,
+                         (width + crop_size) // 2, (height + crop_size) // 2))
+    return img_crop.resize((size, size))
 
-def to_numpy(tensor):
-    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
+img_mean = np.asarray([0.485, 0.456, 0.406])
+img_std = np.asarray([0.229, 0.224, 0.225])
 
 ort_session = onnxruntime.InferenceSession(
     os.path.join(os.path.dirname(__file__), "model.onnx"))
-
-data_transforms = transforms.Compose([
-    transforms.RandomResizedCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-])
-
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -104,22 +101,25 @@ class ChatConsumer(WebsocketConsumer):
         filename = os.path.join('/tmp', filename)
         urllib.request.urlretrieve(media_url, filename)
         img = Image.open(filename).convert('RGB')
-        img = data_transforms(img)
-        img = img.unsqueeze_(0)
+        img = crop_and_resize(img, 224)
 
-        ort_inputs = {ort_session.get_inputs()[0].name: to_numpy(img)}
+        img_np = np.asarray(img).astype(np.float32)/255.0
+        img_np_normalized = (img_np - img_mean) / img_std
+
+        # (H, W, C) -> (C, H, W)
+        img_np_transposed = img_np_normalized.transpose(2, 0, 1)
+
+        batch_img = [img_np_transposed]
+
+        ort_inputs = {ort_session.get_inputs()[0].name: batch_img}
         ort_outs = ort_session.run(None, ort_inputs)[0]
         result = np.argmax(ort_outs)
 
         if result == 0:
             return
 
-        if hasattr(status, "retweeted_status"):
-            status_id = status.retweeted_status.id
-            screen_name = status.retweeted_status.author.screen_name
-        else:
-            status_id = status.id
-            screen_name = status.author.screen_name
+        status_id = status.id
+        screen_name = status.author.screen_name
 
         html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/{}/status/{}"></a></blockquote>'.format(
             screen_name, status_id)
