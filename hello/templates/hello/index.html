@@ -1,6 +1,7 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
+
 <section class="section">
   {% if request.user.is_authenticated %}
   <div id="app">
@@ -55,7 +56,12 @@
       <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
         <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
       </button>
-      <p>アクセス権限は今のところタイムラインの読み込みのみに利用しています。</p>
+      <ul><li>アクセス権限は今のところタイムラインの読み込みのみに利用しています。</li></ul>
+      <ul><li id="compatibility"><strong style="color:red">あなたのブラウザには対応していません。新しいブラウザを利用してください。</strong></li></ul>
+      <script> var msg = document.getElementById("compatibility");
+	       var compatibleBrowser = typeof Object['__defineSetter__'] === 'function';
+               if(compatibleBrowser) {msg.innerHTML = "あなたのブラウザに対応しています";}
+      </script>
       <hr>
       <h3 class="subtitle is-5">実装済み機能</h3>
       <ul>

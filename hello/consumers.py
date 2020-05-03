@@ -5,7 +5,6 @@ import json
 import threading
 
 import tweepy
-import more_itertools
 
 import numpy as np
 import onnxruntime

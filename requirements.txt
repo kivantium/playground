@@ -1,9 +1,6 @@
-django-heroku
-gunicorn
-whitenoise
+django~=3.0.5
+channels~=2.4.0
 social-auth-app-django
 tweepy
-more-itertools
 onnxruntime
-channels
 pillow
