@@ -39,6 +39,7 @@
           <div class="container" v-html="status_html"></div>
         </div>
       </div>
+      <div v-if="incompatible" class="notification is-danger is-light">エラー: お使いのブラウザには対応していません。Google Chromeなどの新しいブラウザでJavaScriptをオンにして使ってください。</div>
       <div v-if="!limit_reached && (Object.keys(status_list).length == 0)" class="notification is-info is-light">ツイートを取得しています……</div>
       <div v-if="limit_reached" class="notification is-warning is-light">取得できるツイート数の上限に達しました。</div>
       <div v-if="closed" class="notification is-warning is-light">サーバーとの接続が切断されました</div>
@@ -49,7 +50,7 @@
   <div class="container">
     <div class="content">
       <h2 class="subtitle is-4">Introduction</h2>
-      <p>Twitterにイラストを投稿する絵師さんが増えていますが、Twitterのイラスト検索機能はPixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
+      <p>Twitterにはたくさんのイラストが投稿されていますが、Twitterのイラスト検索機能はPixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
       <hr>
 
       <p>利用するにはログインが必要です</p>
@@ -57,11 +58,6 @@
         <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
       </button>
       <ul><li>アクセス権限は今のところタイムラインの読み込みのみに利用しています。</li></ul>
-      <ul><li id="compatibility"><strong style="color:red">あなたのブラウザには対応していません。新しいブラウザを利用してください。</strong></li></ul>
-      <script> var msg = document.getElementById("compatibility");
-	       var compatibleBrowser = typeof Object['__defineSetter__'] === 'function';
-               if(compatibleBrowser) {msg.innerHTML = "あなたのブラウザに対応しています";}
-      </script>
       <hr>
       <h3 class="subtitle is-5">実装済み機能</h3>
       <ul>
@@ -122,6 +118,7 @@
       limit_reached: false,
       closed: false,
       selected: "home",
+      incompatible: false,
       // https://www.koatech.info/blog/vue-websocket-sample/
       ws: new WebSocket(
         (window.location.protocol == "https:" ? "wss" : "ws")
