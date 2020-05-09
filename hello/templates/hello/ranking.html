@@ -1,0 +1,32 @@
+{% extends 'hello/base.html' %}
+
+{% block content %}
+<section class="section">
+  <div id="app">
+    <div class="container">
+      <div class="tabs is-centered is-boxed is-fullwidth">
+        <ul>
+          <li><a href="/"><span class="icon"><i class="fab fa-twitter"></i></span><span class="hide-mobile">タイムライン</span></a></li>
+          <li class="is-active"><a href="/ranking"><span class="icon"><i class="fas fa-crown"></i></span><span class="hide-mobile">ランキング</span></a></li>
+          <li><a><span class="icon"><i class="fas fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
+        </ul>
+      </div>
+      <div class="content">
+        <p>現在収集されている画像をいいね数順に表示しています</p>
+      </div>
+    </div>
+    <hr>
+    <div class="container">
+      <div class="columns is-mobile is-multiline">
+        {% for image_entry in image_entry_list %}
+        <div class="column is-2-desktop is-3-tablet is-4-mobile">
+            <figure class="image is-square">
+              <a href="https://twitter.com/i/web/status/{{image_entry.status_id}}"><img src="{{image_entry.media_url}}" style="object-fit: cover;"></a>
+            </figure>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

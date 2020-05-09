@@ -4,6 +4,8 @@ from django.conf import settings
 
 import tweepy
 
+from .models import ImageEntry
+
 
 def index(request):
     lists = []
@@ -19,3 +21,9 @@ def index(request):
         lists = api.lists_all(
             screen_name=user.extra_data['access_token']['screen_name'])
     return render(request, 'hello/index.html', {'lists': lists})
+
+def ranking(request):
+    image_entry_list = ImageEntry.objects.filter(is_illust=True).filter(image_number=0).order_by('-like_count')[:300]
+    for item in image_entry_list:
+        print(item.like_count, item.status_id)
+    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list})

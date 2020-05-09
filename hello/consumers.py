@@ -11,10 +11,12 @@ import onnxruntime
 from PIL import Image
 import urllib.request
 from urllib.parse import urlparse
+from datetime import datetime
 
 from channels.generic.websocket import WebsocketConsumer
 from django.conf import settings
 from social_django.models import UserSocialAuth
+from .models import Tag, ImageEntry
 
 def crop_and_resize(img, size):
     width, height = img.size
@@ -91,39 +93,66 @@ class ChatConsumer(WebsocketConsumer):
                 self.handle_status(status)
 
     def handle_status(self, status):
+        if hasattr(status, "retweeted_status"):
+            status = status.retweeted_status
+
         if status.author.protected:
             return
         if 'media' not in status.entities:
             return
-        media_url = status.extended_entities['media'][0]['media_url']
-        filename = os.path.basename(urlparse(media_url).path)
-        filename = os.path.join('/tmp', filename)
-        urllib.request.urlretrieve(media_url, filename)
-        img = Image.open(filename).convert('RGB')
-        img = crop_and_resize(img, 224)
 
-        img_np = np.asarray(img).astype(np.float32)/255.0
-        img_np_normalized = (img_np - img_mean) / img_std
+        entries = ImageEntry.objects.filter(status_id=status.id)
+        include2d = False
+        if entries:  # if the status is cached
+            for entry in entries:
+                entry.retweet_count = status.retweet_count
+                entry.like_count = status.favorite_count
+                entry.save()
+                if entry.is_illust:
+                    include2d = True
+        else:
+            for num, media in enumerate(status.extended_entities['media']):
+                media_url = media['media_url']
+                filename = os.path.basename(urlparse(media_url).path)
+                filename = os.path.join('/tmp', filename)
+                urllib.request.urlretrieve(media_url, filename)
+                img = Image.open(filename).convert('RGB')
+                img = crop_and_resize(img, 224)
 
-        # (H, W, C) -> (C, H, W)
-        img_np_transposed = img_np_normalized.transpose(2, 0, 1)
+                img_np = np.asarray(img).astype(np.float32)/255.0
+                img_np_normalized = (img_np - img_mean) / img_std
 
-        batch_img = [img_np_transposed]
+                # (H, W, C) -> (C, H, W)
+                img_np_transposed = img_np_normalized.transpose(2, 0, 1)
 
-        ort_inputs = {ort_session.get_inputs()[0].name: batch_img}
-        ort_outs = ort_session.run(None, ort_inputs)[0]
-        result = np.argmax(ort_outs)
+                batch_img = [img_np_transposed]
 
-        if result == 0:
-            return
+                ort_inputs = {ort_session.get_inputs()[0].name: batch_img}
+                ort_outs = ort_session.run(None, ort_inputs)[0]
+                result = np.argmax(ort_outs)
 
-        status_id = status.id
-        screen_name = status.author.screen_name
+                is_illust = True if result == 1 else False
 
-        html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/{}/status/{}"></a></blockquote>'.format(
-            screen_name, status_id)
+                if is_illust:
+                    include2d = True 
 
-        self.send(text_data=json.dumps({
-            'limit_reached': False,
-            'html': html,
-        }))
+                img_entry = ImageEntry(status_id=status.id,
+                            author_id=status.author.id,
+                            author_screen_name=status.author.screen_name,
+                            text=status.full_text,
+                            image_number=num,
+                            retweet_count=status.retweet_count,
+                            like_count=status.favorite_count,
+                            media_url=media_url,
+                            created_at=status.created_at,
+                            is_illust=is_illust)
+                img_entry.save()
+
+        if include2d:
+            html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/{}/status/{}"></a></blockquote>'.format(
+                status.author.screen_name, status.id)
+
+            self.send(text_data=json.dumps({
+                'limit_reached': False,
+                'html': html,
+            }))
