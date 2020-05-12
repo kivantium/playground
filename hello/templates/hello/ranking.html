@@ -1,6 +1,17 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
+<style>
+.item{ border: 1px solid #ddd; width: 33%; }
+@media screen and (min-width:768px) and (max-width:1024px) {
+.item{ width: 25%; }
+}
+@media screen and (min-width:1024px) {
+.item{ width: 20%; }
+}
+ 
+.item img { width: 100%; }
+</style>
 <section class="section">
   <div id="app">
     <div class="container">
@@ -17,16 +28,23 @@
     </div>
     <hr>
     <div class="container">
-      <div class="columns is-mobile is-multiline">
+      <div v-masonry="'containerId'" transition-duration="0.1s">
         {% for image_entry in image_entry_list %}
-        <div class="column is-2-desktop is-3-tablet is-4-mobile">
-            <figure class="image is-square">
-              <a href="https://twitter.com/i/web/status/{{image_entry.status_id}}"><img src="{{image_entry.media_url}}" style="object-fit: cover;"></a>
-            </figure>
-        </div>
+        <div v-masonry-tile class="item">
+          <a href="https://twitter.com/i/web/status/{{image_entry.status_id}}"><img src="{{image_entry.media_url}}"></a>
+        </div> 
         {% endfor %}
       </div>
     </div>
   </div>
 </section>
+<script src="https://unpkg.com/vue-masonry@0.11.3/dist/vue-masonry-plugin-window.js"></script>
+<script>
+  var VueMasonryPlugin = window["vue-masonry-plugin"].VueMasonryPlugin;
+  Vue.use(VueMasonryPlugin);
+  var app = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#app',
+  });
+</script>
 {% endblock %}
