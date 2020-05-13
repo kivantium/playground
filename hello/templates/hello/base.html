@@ -1,57 +1,39 @@
 <!doctype html>
-<html>
+<html lang="ja">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>にじさーち</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
-    <style>.twitter-tweet{ margin-bottom:0px !important;} 
-           .column{ padding-top: 0px !important; padding-bottom: 0px !important;} 
-           @media screen and (max-width: 768px){ .hide-mobile{ display:none; } }
-    </style>
+    {% load static %}
+
+    <link rel="stylesheet" type="text/css" href="{% static 'hello/style.css' %}">
   </head>
   <body>
-    <div id="navBar">
-      <nav class="navbar is-primary">
-        <div class="navbar-brand">
-          <a class="navbar-item" href="/">
-            <h1 class="title has-text-light is-4">にじさーち</h1>
-          </a>
-          <a role="button" class="navbar-burger burger" aria-expanded="false" data-target="navMenu"
-                                                                              @click="isOpen = !isOpen" v-bind:class="{'is-active': isOpen}">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-          </a>
-        </div>
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #00d1b2;">
+      <span class="navbar-brand mb-0 h1 font-weight-bold">にじさーち</span>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-        <div id="navMenu" class="navbar-menu" v-bind:class="{'is-active': isOpen}"
-                          style="float: right">
-          <div class="navbar-end">
-            <div class="navbar-item">
-              {% if request.user.is_authenticated %}
-              <button class="button is-light" onclick="location.href='/logout'">ログアウト</button>
-              {% else %}
-              <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
-                <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
-              </button>
-              {% endif %}
-            </div>
-          </div>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <div class="my-2 my-lg-0 ml-auto">
+          {% if request.user.is_authenticated %}
+          <button type="button" class="btn btn-light" onclick="location.href='/logout'">ログアウト</button>
+          {% else %}
+          <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+            <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+          </button>
+          {% endif %}
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
     {% block content %}
     {% endblock %}
-    <script>
-      var navBar = new Vue({
-        el: '#navBar',
-        data: {
-          isOpen: false
-        }
-      })
-    </script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>   </script>
   </body>
 </html>

@@ -1,116 +1,102 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
-
-<section class="section">
+<div class="container my-4">
+  <ul class="nav nav-tabs justify-content-center">
+    <li class="nav-item"><a class="nav-link active" href="/"><span class="icon"><i class="fa fa-home"></i></span><span class="hide-mobile">ホーム</span></a></li>
+    <li class="nav-item"><a class="nav-link" href="/ranking"><span class="icon"><i class="fa fa-crown"></i></span><span class="hide-mobile">ランキング</span></a></li>
+    <li class="nav-item"><a class="nav-link disabled"><span class="icon"><i class="fa fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
+  </ul>
+</div>
+{% if request.user.is_authenticated %}
+<div id="app">
   <div class="container">
-    <div class="tabs is-centered is-boxed is-fullwidth">
-      <ul>
-        <li class="is-active"><a href="/"><span class="icon"><i class="fab fa-twitter"></i></span><span class="hide-mobile">タイムライン</span></a></li>
-        <li><a href="/ranking"><span class="icon"><i class="fas fa-crown"></i></span><span class="hide-mobile">ランキング</span></a></li>
-        <li><a><span class="icon"><i class="fas fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
-      </ul>
+    <p>タイムラインからイラストのツイートだけを選んで表示します。</p>
+    <div class="form-group">
+      <label class="font-weight-bold">リスト選択</label>
+      <select class="form-control" v-on:change="onChange()" v-model="selected">
+        <option value="home">ホームタイムライン</option>
+        {% for list in lists %}
+        <option value="{{ list.id }}">{{ list.name }}</option>
+        {% endfor %}
+      </select>
+      <small>ホームタイムラインは読み込める数が少ないため、リストを使うことをおすすめします。</small>
     </div>
   </div>
-  {% if request.user.is_authenticated %}
-  <div id="app">
-    <div class="container">
-      <div class="content">
-        <p>タイムラインからイラストのツイートだけを選んで表示します。</p>
-        <div class="field">
-          <label class="label">リスト選択</label>
-          <p class="help">ホームタイムラインは読み込める数が少ないため、リストを使うことをおすすめします。</p>
-          <div class="control">
-            <div class="select">
-              <select v-on:change="onChange()" v-model="selected">
-                <option value="home">ホームタイムライン</option>
-                {% for list in lists %}
-                <option value="{{ list.id }}">{{ list.name }}</option>
-                {% endfor %}
-              </select>
-            </div>
-          </div>
-        </div>
+  <hr>
+  <div class="container">
+    <div class="row no-gutters">
+      <div v-for="status_html in status_list" class="col-12 col-md-6 col-lg-4">
+        <div v-html="status_html"></div>
       </div>
     </div>
-    <hr>
-    <div class="container">
-      <div class="columns is-mobile is-multiline">
-        <div v-for="status_html in status_list" class="column is-4-desktop is-6-tablet is-12-mobile">
-          <div class="container" v-html="status_html"></div>
-        </div>
-      </div>
-      <div v-if="incompatible" class="notification is-danger is-light">エラー: お使いのブラウザには対応していません。Google Chromeなどの新しいブラウザでJavaScriptをオンにして使ってください。</div>
-      <div v-if="!limit_reached && (Object.keys(status_list).length == 0)" class="notification is-info is-light">ツイートを取得しています……</div>
-      <div v-if="limit_reached" class="notification is-warning is-light">取得できるツイート数の上限に達しました。</div>
-      <div v-if="closed" class="notification is-warning is-light">サーバーとの接続が切断されました</div>
-    </div>
+    <div v-if="incompatible" class="alert alert-danger is-light">エラー: お使いのブラウザには対応していません。Google Chromeなどの新しいブラウザでJavaScriptをオンにして使ってください。</div>
+    <div v-if="!limit_reached && (Object.keys(status_list).length == 0)" class="alert alert-info is-light">ツイートを取得しています……</div>
+    <div v-if="limit_reached" class="alert alert-warning is-light">取得できるツイート数の上限に達しました。</div>
+    <div v-if="closed" class="alert alert-warning is-light">サーバーとの接続が切断されました</div>
   </div>
-  {% else %}
+</div>
+{% else %}
 
-  <div class="container">
-    <div class="content">
-      <h2 class="subtitle is-4">Introduction</h2>
-      <p>Twitterにはたくさんのイラストが投稿されていますが、Twitterのイラスト検索機能はPixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
-      <hr>
+<div class="container">
+  <h3>Introduction</h3>
+  <p>Twitterにはたくさんのイラストが投稿されていますが、Twitterのイラスト検索機能はPixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
+  <hr>
 
-      <p>利用するにはログインが必要です</p>
-      <button class="button is-info" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
-        <span class="icon"><i class="fab fa-twitter"></i></span><span>Twitterでログイン</span>
-      </button>
-      <ul><li>アクセス権限は今のところタイムラインの読み込みのみに利用しています。</li></ul>
-      <hr>
-      <h3 class="subtitle is-5">実装済み機能</h3>
+  <p>利用するにはログインが必要です</p>
+  <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+    <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+  </button>
+  <hr>
+  <h4>実装済み機能</h4>
+  <ul>
+    <li>リストからイラストを含むツイートだけを選んで表示</li>
+    <ul>
+      <li>Imagenetでpre-trainされたSqueezenetをイラストかどうかを判定できるようファインチューニングしたものを使って選んでいます。<br>（作業ログ: <a href="https://kivantium.hateblo.jp/entry/2020/04/18/010827">二次元画像判別器の作成に関する基礎検討</a>　<a href="https://kivantium.hateblo.jp/entry/2020/04/25/003218">PyTorchでファインチューニングしたモデルをONNXで利用する</a>）</li>
+      <li>現在はサーバーサイドで推論を行っていますが、将来的にはTensorflow.jsなどを使ってクライアント側で実行したいと思っています。</li>
+      <li>TwitterのAPI制限の関係上ホームタイムラインから読み込めるツイート数が少ないので、お気に入りの絵師を入れたリストを事前に作成しておくことをおすすめします。</li>
+    </ul>
+    <li>ランキング (&beta;版)</li>
+    <ul>
+      <li>収集した画像をいいね数順に表示します。近いうちに日付別ランキングなどを表示できるようにしてUIをマシにします。</li>
+    </ul>
+  </ul>
+  <h4>実装したい機能</h4>
+  <ul>
+    <li>特定のユーザーの過去のツイートからイラストだけを表示する
       <ul>
-        <li>リストからイラストを含むツイートだけを選んで表示</li>
-        <ul>
-          <li>Imagenetでpre-trainされたSqueezenetをイラストかどうかを判定できるようファインチューニングしたものを使って選んでいます。<br>（作業ログ: <a href="https://kivantium.hateblo.jp/entry/2020/04/18/010827">二次元画像判別器の作成に関する基礎検討</a>　<a href="https://kivantium.hateblo.jp/entry/2020/04/25/003218">PyTorchでファインチューニングしたモデルをONNXで利用する</a>）</li>
-          <li>現在はサーバーサイドで推論を行っていますが、将来的にはTensorflow.jsなどを使ってクライアント側で実行したいと思っています。</li>
-          <li>TwitterのAPI制限の関係上ホームタイムラインから読み込めるツイート数が少ないので、お気に入りの絵師を入れたリストを事前に作成しておくことをおすすめします。</li>
-        <li>ランキング (&beta;版)</li>
-        <ul>
-          <li>収集した画像をいいね数順に表示します。近いうちに日付別ランキングなどを表示できるようにしてUIをマシにします。</li>
-        </ul>
-      </ul>
-      <h3 class="subtitle is-5">実装したい機能</h3>
-      <ul>
-        <li>特定のユーザーの過去のツイートからイラストだけを表示する
-          <ul>
-            <li>「たまたまRTで流れてきた神絵師のアカウントを遡ってみたらソシャゲのガチャ画像ばかりでイラストが全然見つからなかった」のような問題を解決したいです。
-            </li>
-          </ul>
-        </li>
-        <li>いいね履歴を利用したレコメンデーション
-          <ul>
-            <li>PU Learningが使えそうだと思っています</li>
-          </ul>
-        </li>
-        <li>画像からの自動タグ付け
-          <ul>
-            <li>画像のクラス分類は非常によく研究されているテーマですが、新作が出てくるたびに増えるタグを自動でつけるのは研究課題として面白そうだと思っています</li>
-          </ul>
-        </li>
-        <li>セリフ検索
-          <ul>
-            <li>画像に写っている文字に対して検索できるようにしたいです。精度の良いOCRが必要になります</li>
-          </ul>
-        </li>
-        <li>タグ検索・類似画像検索
-          <ul>
-            <li>Twitter上の画像の分析結果をデータベース化して検索できるようにしたいです。</li>
-          </ul>
+        <li>「たまたまRTで流れてきた神絵師のアカウントを遡ってみたらソシャゲのガチャ画像ばかりでイラストが全然見つからなかった」のような問題を解決したいです。
         </li>
       </ul>
-      <h3 class="subtitle is-5">関連リンク</h3>
+    </li>
+    <li>いいね履歴を利用したレコメンデーション
       <ul>
-        <li><a href="https://github.com/kivantium/playground">GitHub</a></li>
-        <li><a href="https://discord.gg/Ysbe45f">開発用Discord</a></li>
+        <li>PU Learningが使えそうだと思っています</li>
       </ul>
-
-    </div>
-  </div>
-  {% endif %}
-</section>
+    </li>
+    <li>画像からの自動タグ付け
+      <ul>
+        <li>画像のクラス分類は非常によく研究されているテーマですが、新作が出てくるたびに増えるタグを自動でつけるのは研究課題として面白そうだと思っています</li>
+      </ul>
+    </li>
+    <li>セリフ検索
+      <ul>
+        <li>画像に写っている文字に対して検索できるようにしたいです。精度の良いOCRが必要になります</li>
+      </ul>
+    </li>
+    <li>タグ検索・類似画像検索
+      <ul>
+        <li>Twitter上の画像の分析結果をデータベース化して検索できるようにしたいです。</li>
+      </ul>
+    </li>
+  </ul>
+  <h4>関連リンク</h4>
+  <ul>
+    <li><a href="https://github.com/kivantium/playground">GitHub</a></li>
+    <li><a href="https://discord.gg/Ysbe45f">開発用Discord</a></li>
+  </ul>
+</div>
+{% endif %}
 {% if request.user.is_authenticated %}
 <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script>
