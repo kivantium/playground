@@ -1,50 +1,47 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
-<style>
-.item{ border: 1px solid #ddd; width: 33%; }
-@media screen and (min-width:768px) and (max-width:1024px) {
-.item{ width: 25%; }
-}
-@media screen and (min-width:1024px) {
-.item{ width: 20%; }
-}
- 
-.item img { width: 100%; }
-</style>
 <section class="section">
   <div id="app">
+    <div class="container my-4">
+      <ul class="nav nav-tabs justify-content-center">
+        <li class="nav-item"><a class="nav-link active" href="/"><span class="icon"><i class="fa fa-home"></i></span><span class="hide-mobile">ホーム</span></a></li>
+        <li class="nav-item"><a class="nav-link" href="/ranking"><span class="icon"><i class="fa fa-crown"></i></span><span class="hide-mobile">ランキング</span></a></li>
+        <li class="nav-item"><a class="nav-link disabled"><span class="icon"><i class="fa fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
+      </ul>
+    </div>
     <div class="container">
-      <div class="tabs is-centered is-boxed is-fullwidth">
-        <ul>
-          <li><a href="/"><span class="icon"><i class="fab fa-twitter"></i></span><span class="hide-mobile">タイムライン</span></a></li>
-          <li class="is-active"><a href="/ranking"><span class="icon"><i class="fas fa-crown"></i></span><span class="hide-mobile">ランキング（&beta;版）</span></a></li>
-          <li><a><span class="icon"><i class="fas fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
-        </ul>
-      </div>
-      <div class="content">
-        <p>現在収集されている画像をいいね数順に表示しています。&beta;版なのでいろいろ作りが雑です。</p>
-      </div>
+      <p>現在収集されている画像をいいね数順に表示しています。&beta;版なのでいろいろ作りが雑です。</p>
     </div>
     <hr>
     <div class="container">
-      <div v-masonry="'containerId'" transition-duration="0.1s">
+      <div class="grid no-gutters">
+        <div class="grid-sizer col-6 col-md-4 col-lg-3"></div>
         {% for image_entry in image_entry_list %}
-        <div v-masonry-tile class="item">
-          <a href="https://twitter.com/i/web/status/{{image_entry.status_id}}"><img src="{{image_entry.media_url}}"></a>
-        </div> 
+        <div class="grid-item col-6 col-md-4 col-lg-3">
+          <a href="https://twitter.com/i/web/status/{{image_entry.status_id}}">
+          <img src="{{image_entry.media_url}}">
+          </a>
+        </div>
         {% endfor %}
       </div>
     </div>
   </div>
 </section>
-<script src="https://unpkg.com/vue-masonry@0.11.3/dist/vue-masonry-plugin-window.js"></script>
+{% endblock %}
+
+{% block script %}
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
-  var VueMasonryPlugin = window["vue-masonry-plugin"].VueMasonryPlugin;
-  Vue.use(VueMasonryPlugin);
-  var app = new Vue({
-    delimiters: ['[[', ']]'],
-    el: '#app',
-  });
+var $grid = $('.grid').masonry({
+  itemSelector: '.grid-item',
+  columnWidth: '.grid-sizer',
+  percentPosition: true,
+  transitionDuration: 0
+});
+$grid.imagesLoaded().progress( function() {
+  $grid.masonry('layout');
+});
 </script>
 {% endblock %}
