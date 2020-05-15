@@ -17,6 +17,7 @@ from channels.generic.websocket import WebsocketConsumer
 from django.conf import settings
 from social_django.models import UserSocialAuth
 from .models import Tag, ImageEntry
+import i2v
 
 def crop_and_resize(img, size):
     width, height = img.size
@@ -30,6 +31,13 @@ img_std = np.asarray([0.229, 0.224, 0.225])
 
 ort_session = onnxruntime.InferenceSession(
     os.path.join(os.path.dirname(__file__), "model.onnx"))
+
+# https://gist.github.com/mahmoud/237eb20108b5805aed5f
+hashtag_re = re.compile("(?:^|\s)[＃#]{1}(\w+)", re.UNICODE)
+
+illust2vec = i2v.make_i2v_with_onnx(
+        os.path.join(os.path.dirname(__file__), "illust2vec_tag_ver200.onnx"),
+        os.path.join(os.path.dirname(__file__), "tag_list.json"))
 
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
@@ -84,13 +92,31 @@ class ChatConsumer(WebsocketConsumer):
         if selected == "home":
             for status in limit_handled(tweepy.Cursor(self.api.home_timeline, tweet_mode='extended').items()):
                 if self.sending == False:
-                    break
+                    breakset_i2v_tags
                 self.handle_status(status)
         else:
             for status in limit_handled(tweepy.Cursor(self.api.list_timeline, list_id=int(selected), tweet_mode='extended').items()):
                 if self.sending == False:
                     break
                 self.handle_status(status)
+
+    def set_i2v_tags(self, img, img_entry):
+        i2vtags = illust2vec.estimate_plausible_tags([img], threshold=0.6)
+        for category in ['character', 'copyright', 'general']:
+            for tag in i2vtags[0][category]:
+                tag_name, tag_prob = tag
+                try:
+                    t = Tag.objects.get(name=tag_name, tag_type='IV')
+                except:
+                    t = Tag.objects.create(name=tag_name, tag_type='IV')
+                img_entry.tags.add(t)
+
+        rating = i2vtags[0]['rating'][0][0]
+        try:
+            t = Tag.objects.get(name=rating, tag_type='IV')
+        except:
+            t = Tag.objects.create(name=rating, tag_type='IV')
+        img_entry.tags.add(t)
 
     def handle_status(self, status):
         if hasattr(status, "retweeted_status"):
@@ -112,12 +138,12 @@ class ChatConsumer(WebsocketConsumer):
                     include2d = True
         else:
             for num, media in enumerate(status.extended_entities['media']):
-                media_url = media['media_url']
+                media_url = media['media_url_https']
                 filename = os.path.basename(urlparse(media_url).path)
                 filename = os.path.join('/tmp', filename)
                 urllib.request.urlretrieve(media_url, filename)
-                img = Image.open(filename).convert('RGB')
-                img = crop_and_resize(img, 224)
+                img_pil = Image.open(filename).convert('RGB')
+                img = crop_and_resize(img_pil, 224)
 
                 img_np = np.asarray(img).astype(np.float32)/255.0
                 img_np_normalized = (img_np - img_mean) / img_std
@@ -148,9 +174,20 @@ class ChatConsumer(WebsocketConsumer):
                             is_illust=is_illust)
                 img_entry.save()
 
+                if is_illust:
+                    # Add hashtags as image tags
+                    hashtags = hashtag_re.findall(status.full_text)
+                    for tag_name in hashtags:
+                        try:
+                            t = Tag.objects.get(name=tag_name, tag_type='HS')
+                        except:
+                            t = Tag.objects.create(name=tag_name, tag_type='HS')
+                        img_entry.tags.add(t)
+
+                    self.set_i2v_tags(img_pil, img_entry)
+
         if include2d:
-            html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/{}/status/{}"></a></blockquote>'.format(
-                status.author.screen_name, status.id)
+            html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/user/status/{}"></a></blockquote>'.format(status.id)
 
             self.send(text_data=json.dumps({
                 'limit_reached': False,

@@ -1,0 +1,39 @@
+{% extends 'hello/base.html' %}
+
+{% block content %}
+<div id="app">
+  <div class="container">
+    <h2 class="h5 mt-5"><a href="#" onClick="history.back(); return false;"><span class="icon"><i class="fa fa-arrow-left"></i></span></a>ツイート詳細</h2>
+    <hr>
+    <ul class="list-inline">
+      {% for tag in hashtags %}
+      <li class="list-inline-item"><a href="/search?tag={{tag.name}}" class="badge badge-info">{{tag.name}}</a></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      {% for i2vtags in i2vtags_list %}
+      <li>
+        <ul class="list-inline">
+          {% for tag in i2vtags %}
+          <li class="list-inline-item"><a href="/search?tag={{tag.name}}" class="badge badge-secondary">{{tag.name}}</a></li>
+          {% empty %}
+          <li class="list-inline-item"><span class="badge badge-warning">No Data</span></li>
+          {% endfor %}
+        </ul>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <blockquote class="twitter-tweet tw-align-center" data-conversation="none"><a href="https://twitter.com/user/status/{{status_id}}"></a></blockquote>
+  <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+  <div class="container">
+    <hr>
+    <h2 class="h6 mt-5">タグについて</h2>
+    <ul>
+      <li><span class="badge badge-info">水色のタグ</span> はツイートに含まれるハッシュタグを表します。</li>
+      <li><span class="badge badge-secondary">灰色のタグ</span> はIllustration2Vecを用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある場合は複数行表示します。</li>
+      <li><span class="badge badge-warning">No Data</span> はその画像に対するタグがないことを表します。二次元画像だと判定されず、タグ付けを行わなかった場合などに表示されます。</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

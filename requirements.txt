@@ -4,3 +4,6 @@ social-auth-app-django
 tweepy
 onnxruntime
 pillow
+numpy
+scipy
+scikit-image
