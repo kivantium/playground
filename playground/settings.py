@@ -133,7 +133,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/'
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/timeline'
 
 # Use different settings in local environment and Heroku
 # https://qiita.com/miler0528/items/1926e93ed97979f8e9fa

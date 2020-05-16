@@ -1,0 +1,103 @@
+{% extends 'hello/base.html' %}
+
+{% block content %}
+{% if request.user.is_authenticated %}
+<div id="app">
+  <div class="container mt-5">
+    <p>タイムラインからイラストのツイートだけを選んで表示します。</p>
+    <div class="form-group">
+      <label class="font-weight-bold">リスト選択</label>
+      <select class="form-control" v-on:change="onChange()" v-model="selected">
+        <option value="home">ホームタイムライン</option>
+        {% for list in lists %}
+        <option value="{{ list.id }}">{{ list.name }}</option>
+        {% endfor %}
+      </select>
+      <small>ホームタイムラインは読み込める数が少ないため、リストを使うことをおすすめします。</small>
+    </div>
+  </div>
+  <hr>
+  <div class="container">
+    <div class="row no-gutters">
+      <div v-for="status_html in status_list" class="col-12 col-md-6 col-lg-4">
+        <div v-html="status_html"></div>
+      </div>
+    </div>
+    <div v-if="incompatible" class="alert alert-danger is-light">エラー: お使いのブラウザには対応していません。Google Chromeなどの新しいブラウザでJavaScriptをオンにして使ってください。</div>
+    <div v-if="!limit_reached && (Object.keys(status_list).length == 0)" class="alert alert-info is-light">ツイートを取得しています……</div>
+    <div v-if="limit_reached" class="alert alert-warning is-light">取得できるツイート数の上限に達しました。</div>
+    <div v-if="closed" class="alert alert-warning is-light">サーバーとの接続が切断されました</div>
+  </div>
+</div>
+{% else %}
+
+<div class="container mt-5">
+  <p>この機能を利用するにはログインが必要です</p>
+  <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+    <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+  </button>
+</div>
+{% endif %}
+{% if request.user.is_authenticated %}
+<script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<script>
+  var vm = new Vue({
+    delimiters: ['[[', ']]'],
+    el: '#app',
+    data: {
+      status_list: [],
+      limit_reached: false,
+      closed: false,
+      selected: "home",
+      incompatible: false,
+      // https://www.koatech.info/blog/vue-websocket-sample/
+      ws: new WebSocket(
+        (window.location.protocol == "https:" ? "wss" : "ws")
+        + '://' + window.location.host + '/ws/chat/test/'
+      ),
+    },
+    methods: {
+      // list is changed
+      onChange() {
+        const self = this;
+        // clear statuses
+        vm.status_list = [];
+        // ask server to send tweets
+        self.ws.send(JSON.stringify({
+          'selected': vm.selected
+        }));
+      }
+    },
+    created: function() {
+      const self = this;
+
+      self.ws.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        vm.limit_reached = data.limit_reached;
+        if(data.limit_reached) {
+          console.warn('Reached rate limit');
+        } else {
+          // beginning of connection
+          if (data.html == 'connected'){
+            // default list is home
+            self.ws.send(JSON.stringify({
+              'selected': "home",
+            }));
+          } else {
+            vm.status_list.push(data.html);
+            // rewrite embed tweets
+            twttr.widgets.load(); 
+          }
+        }
+      };
+
+      self.ws.onclose = function(e) {
+        console.error('Websocket has been closed unexpectedly');
+        vm.closed = true;
+      };
+
+    }
+  })
+</script>
+{% endif %}
+{% endblock %}

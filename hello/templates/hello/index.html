@@ -1,162 +1,44 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
-<div class="container my-4">
-  <ul class="nav nav-tabs justify-content-center">
-    <li class="nav-item"><a class="nav-link active" href="/"><span class="icon"><i class="fa fa-home"></i></span><span class="hide-mobile">ホーム</span></a></li>
-    <li class="nav-item"><a class="nav-link" href="/ranking"><span class="icon"><i class="fa fa-crown"></i></span><span class="hide-mobile">ランキング</span></a></li>
-    <li class="nav-item"><a class="nav-link disabled"><span class="icon"><i class="fa fa-search"></i></span><span  class="hide-mobile">検索（未実装）</span></a></li>
-  </ul>
-</div>
-{% if request.user.is_authenticated %}
-<div id="app">
-  <div class="container">
-    <p>タイムラインからイラストのツイートだけを選んで表示します。</p>
-    <div class="form-group">
-      <label class="font-weight-bold">リスト選択</label>
-      <select class="form-control" v-on:change="onChange()" v-model="selected">
-        <option value="home">ホームタイムライン</option>
-        {% for list in lists %}
-        <option value="{{ list.id }}">{{ list.name }}</option>
+<section class="section">
+  <div id="app">
+    <div class="container">
+      <h2 class="h5 mt-5">登録数の多いタグ</h2>
+      <ul class="list-inline">
+        {% for tag in tag_list %}
+        <li class="list-inline-item"><a href="/search?tag={{tag.name}}" class="badge badge-secondary">{{tag.name}}</a></li>
         {% endfor %}
-      </select>
-      <small>ホームタイムラインは読み込める数が少ないため、リストを使うことをおすすめします。</small>
-    </div>
-  </div>
-  <hr>
-  <div class="container">
-    <div class="row no-gutters">
-      <div v-for="status_html in status_list" class="col-12 col-md-6 col-lg-4">
-        <div v-html="status_html"></div>
+      </ul>
+      <h2 class="h5 mt-5">新着画像</h2>
+      <hr>
+      <div class="grid no-gutters">
+        <div class="grid-sizer col-6 col-md-4 col-lg-3"></div>
+        {% for image_entry in image_entry_list %}
+        <div class="grid-item col-6 col-md-4 col-lg-3">
+          <a href="/status/{{image_entry.status_id}}/">
+          <img src="{{image_entry.media_url}}">
+          </a>
+        </div>
+        {% endfor %}
       </div>
     </div>
-    <div v-if="incompatible" class="alert alert-danger is-light">エラー: お使いのブラウザには対応していません。Google Chromeなどの新しいブラウザでJavaScriptをオンにして使ってください。</div>
-    <div v-if="!limit_reached && (Object.keys(status_list).length == 0)" class="alert alert-info is-light">ツイートを取得しています……</div>
-    <div v-if="limit_reached" class="alert alert-warning is-light">取得できるツイート数の上限に達しました。</div>
-    <div v-if="closed" class="alert alert-warning is-light">サーバーとの接続が切断されました</div>
   </div>
-</div>
-{% else %}
+</section>
+{% endblock %}
 
-<div class="container">
-  <h3>Introduction</h3>
-  <p>Twitterにはたくさんのイラストが投稿されていますが、Twitterのイラスト検索機能はPixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
-  <hr>
-
-  <p>利用するにはログインが必要です</p>
-  <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
-    <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
-  </button>
-  <hr>
-  <h4>実装済み機能</h4>
-  <ul>
-    <li>リストからイラストを含むツイートだけを選んで表示</li>
-    <ul>
-      <li>Imagenetでpre-trainされたSqueezenetをイラストかどうかを判定できるようファインチューニングしたものを使って選んでいます。<br>（作業ログ: <a href="https://kivantium.hateblo.jp/entry/2020/04/18/010827">二次元画像判別器の作成に関する基礎検討</a>　<a href="https://kivantium.hateblo.jp/entry/2020/04/25/003218">PyTorchでファインチューニングしたモデルをONNXで利用する</a>）</li>
-      <li>現在はサーバーサイドで推論を行っていますが、将来的にはTensorflow.jsなどを使ってクライアント側で実行したいと思っています。</li>
-      <li>TwitterのAPI制限の関係上ホームタイムラインから読み込めるツイート数が少ないので、お気に入りの絵師を入れたリストを事前に作成しておくことをおすすめします。</li>
-    </ul>
-    <li>ランキング (&beta;版)</li>
-    <ul>
-      <li>収集した画像をいいね数順に表示します。近いうちに日付別ランキングなどを表示できるようにしてUIをマシにします。</li>
-    </ul>
-  </ul>
-  <h4>実装したい機能</h4>
-  <ul>
-    <li>特定のユーザーの過去のツイートからイラストだけを表示する
-      <ul>
-        <li>「たまたまRTで流れてきた神絵師のアカウントを遡ってみたらソシャゲのガチャ画像ばかりでイラストが全然見つからなかった」のような問題を解決したいです。
-        </li>
-      </ul>
-    </li>
-    <li>いいね履歴を利用したレコメンデーション
-      <ul>
-        <li>PU Learningが使えそうだと思っています</li>
-      </ul>
-    </li>
-    <li>画像からの自動タグ付け
-      <ul>
-        <li>画像のクラス分類は非常によく研究されているテーマですが、新作が出てくるたびに増えるタグを自動でつけるのは研究課題として面白そうだと思っています</li>
-      </ul>
-    </li>
-    <li>セリフ検索
-      <ul>
-        <li>画像に写っている文字に対して検索できるようにしたいです。精度の良いOCRが必要になります</li>
-      </ul>
-    </li>
-    <li>タグ検索・類似画像検索
-      <ul>
-        <li>Twitter上の画像の分析結果をデータベース化して検索できるようにしたいです。</li>
-      </ul>
-    </li>
-  </ul>
-  <h4>関連リンク</h4>
-  <ul>
-    <li><a href="https://github.com/kivantium/playground">GitHub</a></li>
-    <li><a href="https://discord.gg/Ysbe45f">開発用Discord</a></li>
-  </ul>
-</div>
-{% endif %}
-{% if request.user.is_authenticated %}
-<script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% block script %}
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
-  var vm = new Vue({
-    delimiters: ['[[', ']]'],
-    el: '#app',
-    data: {
-      status_list: [],
-      limit_reached: false,
-      closed: false,
-      selected: "home",
-      incompatible: false,
-      // https://www.koatech.info/blog/vue-websocket-sample/
-      ws: new WebSocket(
-        (window.location.protocol == "https:" ? "wss" : "ws")
-        + '://' + window.location.host + '/ws/chat/test/'
-      ),
-    },
-    methods: {
-      // list is changed
-      onChange() {
-        const self = this;
-        // clear statuses
-        vm.status_list = [];
-        // ask server to send tweets
-        self.ws.send(JSON.stringify({
-          'selected': vm.selected
-        }));
-      }
-    },
-    created: function() {
-      const self = this;
-
-      self.ws.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        vm.limit_reached = data.limit_reached;
-        if(data.limit_reached) {
-          console.warn('Reached rate limit');
-        } else {
-          // beginning of connection
-          if (data.html == 'connected'){
-            // default list is home
-            self.ws.send(JSON.stringify({
-              'selected': "home",
-            }));
-          } else {
-            vm.status_list.push(data.html);
-            // rewrite embed tweets
-            twttr.widgets.load(); 
-          }
-        }
-      };
-
-      self.ws.onclose = function(e) {
-        console.error('Websocket has been closed unexpectedly');
-        vm.closed = true;
-      };
-
-    }
-  })
+var $grid = $('.grid').masonry({
+  itemSelector: '.grid-item',
+  columnWidth: '.grid-sizer',
+  percentPosition: true,
+  transitionDuration: 0
+});
+$grid.imagesLoaded().progress( function() {
+  $grid.masonry('layout');
+});
 </script>
-{% endif %}
 {% endblock %}

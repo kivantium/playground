@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from social_django.models import UserSocialAuth
 from django.conf import settings
 from django.http import HttpResponse
+from django.db.models import Count
 
 import datetime
 import tweepy
@@ -15,8 +16,12 @@ from PIL import Image
 
 from .models import Tag, ImageEntry
 
-
 def index(request):
+    tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:16]
+    image_entry_list = ImageEntry.objects.filter(is_illust=True).filter(image_number=0).order_by('-created_at')[:50]
+    return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list})
+
+def timeline(request):
     lists = []
     if request.user.is_authenticated:
         try:
@@ -32,7 +37,10 @@ def index(request):
         api = tweepy.API(auth)
         lists = api.lists_all(
             screen_name=user.extra_data['access_token']['screen_name'])
-    return render(request, 'hello/index.html', {'lists': lists})
+    return render(request, 'hello/timeline.html', {'lists': lists})
+
+def about(request):
+    return render(request, 'hello/about.html')
 
 def ranking(request):
     now = datetime.datetime.now(pytz.timezone('UTC'))
