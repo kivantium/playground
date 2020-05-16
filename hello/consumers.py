@@ -35,10 +35,6 @@ ort_session = onnxruntime.InferenceSession(
 # https://gist.github.com/mahmoud/237eb20108b5805aed5f
 hashtag_re = re.compile("(?:^|\s)[＃#]{1}(\w+)", re.UNICODE)
 
-illust2vec = i2v.make_i2v_with_onnx(
-        os.path.join(os.path.dirname(__file__), "illust2vec_tag_ver200.onnx"),
-        os.path.join(os.path.dirname(__file__), "tag_list.json"))
-
 class ChatConsumer(WebsocketConsumer):
     def connect(self):
         user = self.scope["user"]
@@ -92,31 +88,13 @@ class ChatConsumer(WebsocketConsumer):
         if selected == "home":
             for status in limit_handled(tweepy.Cursor(self.api.home_timeline, tweet_mode='extended').items()):
                 if self.sending == False:
-                    breakset_i2v_tags
+                    break
                 self.handle_status(status)
         else:
             for status in limit_handled(tweepy.Cursor(self.api.list_timeline, list_id=int(selected), tweet_mode='extended').items()):
                 if self.sending == False:
                     break
                 self.handle_status(status)
-
-    def set_i2v_tags(self, img, img_entry):
-        i2vtags = illust2vec.estimate_plausible_tags([img], threshold=0.6)
-        for category in ['character', 'copyright', 'general']:
-            for tag in i2vtags[0][category]:
-                tag_name, tag_prob = tag
-                try:
-                    t = Tag.objects.get(name=tag_name, tag_type='IV')
-                except:
-                    t = Tag.objects.create(name=tag_name, tag_type='IV')
-                img_entry.tags.add(t)
-
-        rating = i2vtags[0]['rating'][0][0]
-        try:
-            t = Tag.objects.get(name=rating, tag_type='IV')
-        except:
-            t = Tag.objects.create(name=rating, tag_type='IV')
-        img_entry.tags.add(t)
 
     def handle_status(self, status):
         if hasattr(status, "retweeted_status"):
@@ -184,7 +162,9 @@ class ChatConsumer(WebsocketConsumer):
                             t = Tag.objects.create(name=tag_name, tag_type='HS')
                         img_entry.tags.add(t)
 
-                    self.set_i2v_tags(img_pil, img_entry)
+            if include2d:
+                url = 'http://127.0.0.1:8000/set_i2v_tag/{}'.format(status.id)
+                urllib.request.urlopen(url).read()
 
         if include2d:
             html = '<blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/user/status/{}"></a></blockquote>'.format(status.id)

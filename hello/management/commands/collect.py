@@ -32,28 +32,6 @@ ort_session = onnxruntime.InferenceSession(
 # https://gist.github.com/mahmoud/237eb20108b5805aed5f
 hashtag_re = re.compile("(?:^|\s)[＃#]{1}(\w+)", re.UNICODE)
 
-illust2vec = i2v.make_i2v_with_onnx(
-        os.path.join(os.path.dirname(__file__), "../../illust2vec_tag_ver200.onnx"),
-        os.path.join(os.path.dirname(__file__), "../../tag_list.json"))
-
-def set_i2v_tags(img, img_entry):
-    i2vtags = illust2vec.estimate_plausible_tags([img], threshold=0.6)
-    for category in ['character', 'copyright', 'general']:
-        for tag in i2vtags[0][category]:
-            tag_name, tag_prob = tag
-            try:
-                t = Tag.objects.get(name=tag_name, tag_type='IV')
-            except:
-                t = Tag.objects.create(name=tag_name, tag_type='IV')
-            img_entry.tags.add(t)
-
-    rating = i2vtags[0]['rating'][0][0]
-    try:
-        t = Tag.objects.get(name=rating, tag_type='IV')
-    except:
-        t = Tag.objects.create(name=rating, tag_type='IV')
-    img_entry.tags.add(t)
-
 def handle_status(status):
     if hasattr(status, "retweeted_status"):
         status = status.retweeted_status
@@ -63,13 +41,17 @@ def handle_status(status):
     if 'media' not in status.entities:
         return
 
+    print('Processing:', status.author.screen_name)
     entries = ImageEntry.objects.filter(status_id=status.id)
     if entries:  # if the status is cached
+        print('Known')
         for entry in entries:
             entry.retweet_count = status.retweet_count
             entry.like_count = status.favorite_count
             entry.save()
     else:
+        print('Unknown')
+        include2D = False
         for num, media in enumerate(status.extended_entities['media']):
             media_url = media['media_url_https']
             filename = os.path.basename(urlparse(media_url).path)
@@ -110,6 +92,8 @@ def handle_status(status):
             img_entry.save()
 
             if is_illust:
+                print('is 2D')
+                include2D = True
                 hashtags = hashtag_re.findall(full_text)
                 for tag_name in hashtags:
                     try:
@@ -118,7 +102,10 @@ def handle_status(status):
                         t = Tag.objects.create(name=tag_name, tag_type='HS')
                     img_entry.tags.add(t)
 
-                set_i2v_tags(img_pil, img_entry)
+        if include2D:
+            print('Setting tag...')
+            url = 'http://127.0.0.1:8000/set_i2v_tag/{}'.format(status.id)
+            urllib.request.urlopen(url).read()
 
 class MyStreamListener(tweepy.StreamListener):
     def on_status(self, status):
@@ -142,7 +129,7 @@ class Command(BaseCommand):
         auth.set_access_token(ATOKEN, ASECRET)
         api = tweepy.API(auth)
 
-        followee_ids = api.friends_ids(screen_name=api.me().screen_name)
+        followee_ids = api.followers_ids(screen_name=api.me().screen_name)
         watch_list = [str(user_id) for user_id in followee_ids]
         watch_list.append(str(api.me().id))
 
