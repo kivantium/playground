@@ -22,15 +22,10 @@
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active"><a class="nav-link" href="/about">About</a></li>
           <li class="nav-item active"><a class="nav-link" href="/ranking">Ranking</a></li>
-          <li class="nav-item active"><a class="nav-link" href="/timeline">Timeline</a></li>
         </ul>
         <div class="my-2 my-lg-0">
           {% if request.user.is_authenticated %}
           <button type="button" class="btn btn-light" onclick="location.href='/logout'">ログアウト</button>
-          {% else %}
-          <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
-            <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
-          </button>
           {% endif %}
         </div>
       </div>
