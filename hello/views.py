@@ -20,29 +20,15 @@ from PIL import Image
 from .models import Tag, ImageEntry
 
 def index(request):
-    t = Tag.objects.get(name='safe')
     tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:16]
-    image_entry_list = ImageEntry.objects.filter(tags=t, is_illust=True, image_number=0, like_count__gte=20).order_by('-id')[:50]
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, image_number=0, like_count__gte=20).order_by('-id')[:50]
+    safe_tag = Tag.objects.get(name='safe')
+    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
     return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list})
 
 def about(request):
     return render(request, 'hello/about.html')
 
-def ranking(request):
-    page = request.GET.get('page', default='1')
-    page = int(page)
-    now = datetime.datetime.now(pytz.timezone('UTC'))
-    td = datetime.timedelta(hours=24)
-    start = now - td
-    image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
-    if len(image_entry_list) > 50 * page:
-        next_page = request.path + '?page={}'.format(page+1)
-    else:
-        next_page = None
-    image_entry_list = image_entry_list[50*(page-1):50*page]
-    safe_tag = Tag.objects.get(name='safe')
-    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
-    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
 
 def add(request, status_id):
     image_entry_list = ImageEntry.objects.filter(status_id=status_id)
@@ -97,8 +83,29 @@ def status(request, status_id):
     return render(request, 'hello/status.html', {'status_id': status_id,
         'hashtags': hashtags, 'i2vtags_list': i2vtags_list})
 
+def ranking(request):
+    page = request.GET.get('page', default='1')
+    page = int(page)
+    now = datetime.datetime.now(pytz.timezone('UTC'))
+    td = datetime.timedelta(hours=24)
+    start = now - td
+    image_entry_list = ImageEntry.objects.filter(is_illust=True).filter(image_number=0).order_by('-like_count')
+    #image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
+    n = 50
+    if len(image_entry_list) > n * page:
+        next_page = request.path + '?page={}'.format(page+1)
+    else:
+        next_page = None
+    image_entry_list = image_entry_list[n*(page-1):n*page]
+    safe_tag = Tag.objects.get(name='safe')
+    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
+    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
+
 def search(request):
     tag_name = request.GET.get('tag')
+    page = request.GET.get('page', default='1')
+    page = int(page)
+    n = 50
     try:
         t = Tag.objects.get(name=tag_name)
     except:
@@ -110,13 +117,19 @@ def search(request):
     else:
         image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t) \
                                      .order_by('-like_count')
+    if len(image_entry_list) > n * page:
+        next_page = request.path + '?page={}&tag={}'.format(page+1, tag_name)
+    else:
+        next_page = None
+    image_entry_list = image_entry_list[n*(page-1):n*page]
 
     safe_tag = Tag.objects.get(name='safe')
     image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
     return render(request, 'hello/search.html', {
         'tag_name': tag_name,
         'notFound': False,
-        'image_entry_list': image_entry_list})
+        'image_entry_list': image_entry_list,
+        'next_page': next_page})
 
 illust2vec = i2v.make_i2v_with_onnx(
         os.path.join(os.path.dirname(__file__), "illust2vec_tag_ver200.onnx"),
