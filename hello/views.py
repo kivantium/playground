@@ -29,11 +29,20 @@ def about(request):
     return render(request, 'hello/about.html')
 
 def ranking(request):
+    page = request.GET.get('page', default='1')
+    page = int(page)
     now = datetime.datetime.now(pytz.timezone('UTC'))
     td = datetime.timedelta(hours=24)
     start = now - td
-    image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')[:50]
-    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list})
+    image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
+    if len(image_entry_list) > 50 * page:
+        next_page = request.path + '?page={}'.format(page+1)
+    else:
+        next_page = None
+    image_entry_list = image_entry_list[50*(page-1):50*page]
+    safe_tag = Tag.objects.get(name='safe')
+    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
+    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
 
 def add(request, status_id):
     image_entry_list = ImageEntry.objects.filter(status_id=status_id)
@@ -94,12 +103,16 @@ def search(request):
         t = Tag.objects.get(name=tag_name)
     except:
         return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
+
     if t.tag_type == 'HS':
         image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0) \
-                                     .order_by('-like_count')[:50]
+                                     .order_by('-like_count')
     else:
         image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t) \
-                                     .order_by('-like_count')[:50]
+                                     .order_by('-like_count')
+
+    safe_tag = Tag.objects.get(name='safe')
+    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
     return render(request, 'hello/search.html', {
         'tag_name': tag_name,
         'notFound': False,

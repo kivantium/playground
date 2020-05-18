@@ -1,10 +1,16 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
+<style>
+.blured {
+  filter: blur(12px);
+  -webkit-filter: blur(12px);
+}
+</style>
 <section class="section">
   <div id="app">
     <div class="container my-4">
-      <p><span class="badge badge-info">{{tag_name}}</span> の検索結果</p>
+      <p class="h5"><span class="badge badge-info">{{tag_name}}</span> の検索結果</p>
       {% if notFound %}
       <p>条件を満たす画像は見つかりませんでした</p>
       {% endif %}
@@ -12,14 +18,25 @@
     {% if not notFound %}
     <hr>
     <div class="container">
+      <!--
+      <div class="mb-3">
+        <input type="checkbox" id="checkbox" v-model="checked">
+        <label for="checkbox">NSFW画像を表示する</label>
+      </div>
+      -->
       <div class="grid no-gutters">
-        <div class="grid-sizer col-6 col-md-4 col-lg-3"></div>
-        {% for image_entry in image_entry_list %}
-        <div class="grid-item col-6 col-md-4 col-lg-3">
-          <a href="/status/{{image_entry.status_id}}/">
-            <img src="{{image_entry.media_url}}">
-          </a>
-        </div>
+        <div class="grid-sizer col-4 col-md-3 col-lg-2"></div>
+        {% for x in image_entry_list %}
+            <div class="grid-item col-4 col-md-3 col-lg-2">
+              <a href="/status/{{x.entry.status_id}}/">
+                {% if x.is_safe %}
+                  <img src="{{x.entry.media_url}}">
+                {% else %}
+                <img class="blured" src="{{x.entry.media_url}}">
+                <!--<img v-bind:class="{'blured': !checked}" src="{{x.entry.media_url}}">-->
+                {% endif %}
+              </a>
+            </div>
         {% endfor %}
       </div>
     </div>
@@ -32,14 +49,14 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
-var $grid = $('.grid').masonry({
-  itemSelector: '.grid-item',
-  columnWidth: '.grid-sizer',
-  percentPosition: true,
-  transitionDuration: 0
-});
-$grid.imagesLoaded().progress( function() {
-  $grid.masonry('layout');
-});
+  var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',
+    columnWidth: '.grid-sizer',
+    percentPosition: true,
+    transitionDuration: 0
+  });
+  $grid.imagesLoaded().progress( function() {
+    $grid.masonry('layout');
+  });
 </script>
 {% endblock %}

@@ -1,6 +1,12 @@
 {% extends 'hello/base.html' %}
 
 {% block content %}
+<style>
+.blured {
+  filter: blur(12px);
+  -webkit-filter: blur(12px);
+}
+</style>
 <section class="section">
   <div id="app">
     <div class="container mt-5">
@@ -8,16 +14,33 @@
     </div>
     <hr>
     <div class="container">
-      <div class="grid no-gutters">
-        <div class="grid-sizer col-6 col-md-4 col-lg-3"></div>
-        {% for image_entry in image_entry_list %}
-        <div class="grid-item col-6 col-md-4 col-lg-3">
-          <a href="/status/{{image_entry.status_id}}/">
-          <img src="{{image_entry.media_url}}">
-          </a>
-        </div>
-        {% endfor %}
+      <!--
+      <div class="mb-3">
+        <input type="checkbox" id="checkbox" v-model="checked">
+        <label for="checkbox">NSFW画像を表示する</label>
       </div>
+      -->
+      <div class="grid no-gutters">
+        <div class="grid-sizer col-4 col-md-3 col-lg-2"></div>
+        {% for x in image_entry_list %}
+            <div class="grid-item col-4 col-md-3 col-lg-2">
+              <a href="/status/{{x.entry.status_id}}/">
+                {% if x.is_safe %}
+                  <img src="{{x.entry.media_url}}">
+                {% else %}
+                <img class="blured" src="{{x.entry.media_url}}">
+                <!--<img v-bind:class="{'blured': !checked}" src="{{x.entry.media_url}}">-->
+                {% endif %}
+              </a>
+            </div>
+        {% endfor %}
+      {% if next_page %}
+      </div>
+      <div class="mx-auto mt-4 alert alert-info">
+        <a href="{{next_page}}" class="text-center" style="display:block">次のページ</a>
+      </div>
+      {% endif %}
+    </div>
     </div>
   </div>
 </section>
@@ -32,9 +55,6 @@ var $grid = $('.grid').masonry({
   columnWidth: '.grid-sizer',
   percentPosition: true,
   transitionDuration: 0
-});
-$grid.imagesLoaded().progress( function() {
-  $grid.masonry('layout');
 });
 </script>
 {% endblock %}

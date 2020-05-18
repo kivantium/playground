@@ -13,9 +13,9 @@
       <h2 class="h5 mt-5">新着画像</h2>
       <hr>
       <div class="grid no-gutters">
-        <div class="grid-sizer col-6 col-md-4 col-lg-3"></div>
+        <div class="grid-sizer col-4 col-md-3 col-lg-2"></div>
         {% for image_entry in image_entry_list %}
-        <div class="grid-item col-6 col-md-4 col-lg-3">
+        <div class="grid-item col-4 col-md-3 col-lg-2">
           <a href="/status/{{image_entry.status_id}}/">
           <img src="{{image_entry.media_url}}">
           </a>
