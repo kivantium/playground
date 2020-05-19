@@ -32,6 +32,14 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
+  window.addEventListener( "pageshow", function ( event ) {
+    var historyTraversal = event.persisted || 
+      ( typeof window.performance != "undefined" && 
+        window.performance.navigation.type === 2 );
+    if ( historyTraversal ) {
+      window.location.reload();
+    }
+  });
   var vm = new Vue({
     delimiters: ['[[', ']]'],
     el: '#app',

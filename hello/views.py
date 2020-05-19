@@ -22,9 +22,9 @@ from .models import Tag, ImageEntry
 def index(request):
     tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:16]
     count = ImageEntry.objects.filter(is_illust=True).count()
-    image_entry_list = ImageEntry.objects.filter(is_illust=True, image_number=0).order_by('-id')[:50]
     safe_tag = Tag.objects.get(name='safe')
-    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:50]
+    safe_tag = Tag.objects.get(name='safe')
     return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list,
         'count': count})
 
@@ -90,19 +90,33 @@ def fix(request):
 def ranking(request):
     page = request.GET.get('page', default='1')
     page = int(page)
+    safe = request.GET.get('safe', default='t')
+    safe = True if safe == 't' else False
     now = datetime.datetime.now(pytz.timezone('UTC'))
     td = datetime.timedelta(hours=24)
     start = now - td
     image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
+
     n = 50
     if len(image_entry_list) > n * page:
         next_page = request.path + '?page={}'.format(page+1)
+        if not safe:
+            next_page += '&safe=f'
     else:
         next_page = None
+
     image_entry_list = image_entry_list[n*(page-1):n*page]
-    safe_tag = Tag.objects.get(name='safe')
-    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
-    return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
+
+    checked_page = request.path + '?page={}'.format(page)
+    if safe:
+        checked_page += '&safe=f'
+
+    if safe:
+        safe_tag = Tag.objects.get(name='safe')
+        image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
+
+    return render(request, 'hello/ranking.html', 
+            {'image_entry_list': image_entry_list, 'next_page': next_page, 'safe': safe, 'checked_page': checked_page})
 
 
 def search(request):
@@ -110,6 +124,9 @@ def search(request):
     page = request.GET.get('page', default='1')
     page = int(page)
     order = request.GET.get('order', default='like')
+    safe = request.GET.get('safe', default='t')
+    safe = True if safe == 't' else False
+
     n = 50
     if tag_name is None:
         image_entry_list = ImageEntry.objects.filter(is_illust=True)
@@ -132,16 +149,29 @@ def search(request):
         next_page = request.path + '?page={}&order={}'.format(page+1, order)
         if tag_name is not None:
             next_page += '&tag={}'.format(tag_name)
+        if not safe:
+            next_page += '&safe=f'
     else:
         next_page = None
     image_entry_list = image_entry_list[n*(page-1):n*page]
 
-    safe_tag = Tag.objects.get(name='safe')
-    image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
+
+    checked_page = request.path + '?page={}&order={}'.format(page, order)
+    if tag_name is not None:
+        checked_page += '&tag={}'.format(tag_name)
+    if safe:
+        checked_page += '&safe=f'
+
+    if safe:
+        safe_tag = Tag.objects.get(name='safe')
+        image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
+
     return render(request, 'hello/search.html', {
         'tag_name': tag_name,
         'notFound': False,
         'image_entry_list': image_entry_list,
+        'safe': safe,
+        'checked_page': checked_page,
         'next_page': next_page})
 
 illust2vec = i2v.make_i2v_with_onnx(
