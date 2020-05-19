@@ -5,7 +5,11 @@
   <div class="container">
     <h2 class="h5 mt-5"><a href="#" onClick="history.back(); return false;"><span class="icon"><i class="fa fa-arrow-left"></i></span></a>ツイート詳細
     {% if request.user.username == 'kivantium' %}
-    <a class="btn btn-danger float-right" href="/delete/{{status_id}}">削除する</a>
+    <div class="float-right">
+    <small class="font-weight-normal">{% for b in is_illust %} {% if b %} True {% else %} False {% endif %} {% endfor %}</small>
+        <a class="btn btn-danger" href="/delete/{{status_id}}">削除する</a>
+        <a class="btn btn-success" href="/add/{{status_id}}">追加する</a>
+  </div>
     {% endif %}
     </h2>
     <hr>

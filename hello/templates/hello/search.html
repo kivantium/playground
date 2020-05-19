@@ -4,7 +4,11 @@
 <section class="section">
   <div id="app">
     <div class="container my-4">
-      <p class="h5"><span class="badge badge-info">{{tag_name}}</span> の検索結果</p>
+      {% if tag_name %}
+        <p class="h5"><span class="badge badge-info">{{tag_name}}</span> の検索結果</p>
+      {% else %}
+        <p class="h5">全ての画像</p>
+      {% endif %}
       {% if notFound %}
       <p>条件を満たす画像は見つかりませんでした</p>
       {% endif %}

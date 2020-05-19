@@ -21,67 +21,71 @@ from .models import Tag, ImageEntry
 
 def index(request):
     tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:16]
-    image_entry_list = ImageEntry.objects.filter(is_illust=True, image_number=0, like_count__gte=20).order_by('-id')[:50]
+    count = ImageEntry.objects.filter(is_illust=True).count()
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, image_number=0).order_by('-id')[:50]
     safe_tag = Tag.objects.get(name='safe')
     image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
-    return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list})
+    return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list,
+        'count': count})
 
 def about(request):
     return render(request, 'hello/about.html')
 
-
 def add(request, status_id):
-    image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+    if request.user.is_authenticated and request.user.username == 'kivantium':
+        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
 
-    if not image_entry_list:
-        return HttpResponse("Status {} is not registered.".format(status_id))
+        if not image_entry_list:
+            url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
+            try:
+                urllib.request.urlopen(url).read()
+                image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+            except:
+                return
 
-    for entry in image_entry_list:
-        entry.is_illust = True
-        entry.save()
+        for entry in image_entry_list:
+            entry.is_illust = True
+            entry.save()
 
-    return HttpResponse("Added status {}.".format(status_id))
+        return HttpResponse("Added status {}.".format(status_id))
+    else:
+        return HttpResponse("You are not allowed to run this operation.")
 
 def delete(request, status_id):
-    image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+    if request.user.is_authenticated and request.user.username == 'kivantium':
+        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
 
-    if not image_entry_list:
-        return HttpResponse("Status {} is not registered.".format(status_id))
+        if not image_entry_list:
+            url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
+            try:
+                urllib.request.urlopen(url).read()
+                image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+            except:
+                return
 
-    for entry in image_entry_list:
-        entry.is_illust = False
-        entry.save()
+        for entry in image_entry_list:
+            entry.is_illust = False
+            entry.save()
 
-    return HttpResponse("Deleted status {}.".format(status_id))
+        return HttpResponse("Deleted status {}.".format(status_id))
+    else:
+        return HttpResponse("You are not allowed to run this operation.")
 
-def status(request, status_id):
-    image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
-                                         .order_by('image_number')
-    if not image_entry_list:
-        url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
-        urllib.request.urlopen(url).read()
-        image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
-                                             .order_by('image_number')
-    hashtags = []
-    i2vtags_list = []
-    for image_entry in image_entry_list:
-        tags = image_entry.tags.all()
-        i2vtags = []
-        rating = None
-        for tag in tags:
-            if tag.tag_type == 'HS':
-                hashtags.append(tag)
-            elif tag.tag_type == 'IV':
-                if tag.name in ['safe', 'questionable', 'explicit']:
-                    rating = tag
-                else:
-                    i2vtags.append(tag)
-        if rating is not None:
-            i2vtags.insert(0, rating)
-        i2vtags_list.append(i2vtags)
-    hashtags = list(set(hashtags))
-    return render(request, 'hello/status.html', {'status_id': status_id,
-        'hashtags': hashtags, 'i2vtags_list': i2vtags_list})
+def fix(request):
+    if not request.user.is_authenticated or request.user.username != 'kivantium':
+        return HttpResponse("You are not allowed to run this operation.")
+    page = request.GET.get('page', default='1')
+    page = int(page)
+    image_entry_list = ImageEntry.objects.filter(is_illust=False).order_by('-id')
+
+    n = 50
+    if len(image_entry_list) > n * page:
+        next_page = request.path + '?page={}'.format(page+1)
+    else:
+        next_page = None
+    image_entry_list = image_entry_list[n*(page-1):n*page]
+
+    return render(request, 'hello/fix.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
 
 def ranking(request):
     page = request.GET.get('page', default='1')
@@ -89,8 +93,7 @@ def ranking(request):
     now = datetime.datetime.now(pytz.timezone('UTC'))
     td = datetime.timedelta(hours=24)
     start = now - td
-    image_entry_list = ImageEntry.objects.filter(is_illust=True).filter(image_number=0).order_by('-like_count')
-    #image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
+    image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
     n = 50
     if len(image_entry_list) > n * page:
         next_page = request.path + '?page={}'.format(page+1)
@@ -101,24 +104,34 @@ def ranking(request):
     image_entry_list = [{'is_safe': safe_tag in entry.tags.all(), 'entry': entry} for entry in image_entry_list]
     return render(request, 'hello/ranking.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
 
+
 def search(request):
     tag_name = request.GET.get('tag')
     page = request.GET.get('page', default='1')
     page = int(page)
+    order = request.GET.get('order', default='like')
     n = 50
-    try:
-        t = Tag.objects.get(name=tag_name)
-    except:
-        return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
-
-    if t.tag_type == 'HS':
-        image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0) \
-                                     .order_by('-like_count')
+    if tag_name is None:
+        image_entry_list = ImageEntry.objects.filter(is_illust=True)
     else:
-        image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t) \
-                                     .order_by('-like_count')
+        try:
+            t = Tag.objects.get(name=tag_name)
+        except:
+            return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
+        if t.tag_type == 'HS':
+            image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
+        else:
+            image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t)
+
+    if order == 'id':
+        image_entry_list = image_entry_list.order_by('-id')
+    else:
+        image_entry_list = image_entry_list.order_by('-like_count')
+
     if len(image_entry_list) > n * page:
-        next_page = request.path + '?page={}&tag={}'.format(page+1, tag_name)
+        next_page = request.path + '?page={}&order={}'.format(page+1, order)
+        if tag_name is not None:
+            next_page += '&tag={}'.format(tag_name)
     else:
         next_page = None
     image_entry_list = image_entry_list[n*(page-1):n*page]
@@ -279,3 +292,35 @@ def register(request, status_id):
             t = Tag.objects.create(name=rating, tag_type='IV')
         img_entry.tags.add(t)
     return HttpResponse("Done!")
+
+def status(request, status_id):
+    image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
+                                         .order_by('image_number')
+    if not image_entry_list:
+        url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
+        urllib.request.urlopen(url).read()
+        image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
+                                             .order_by('image_number')
+    hashtags = []
+    i2vtags_list = []
+    is_illust = []
+    for image_entry in image_entry_list:
+        is_illust.append(image_entry.is_illust)
+        tags = image_entry.tags.all()
+        i2vtags = []
+        rating = None
+        for tag in tags:
+            if tag.tag_type == 'HS':
+                hashtags.append(tag)
+            elif tag.tag_type == 'IV':
+                if tag.name in ['safe', 'questionable', 'explicit']:
+                    rating = tag
+                else:
+                    i2vtags.append(tag)
+        if rating is not None:
+            i2vtags.insert(0, rating)
+        i2vtags_list.append(i2vtags)
+    hashtags = list(set(hashtags))
+    print(is_illust)
+    return render(request, 'hello/status.html', {'status_id': status_id,
+        'hashtags': hashtags, 'i2vtags_list': i2vtags_list, 'is_illust': is_illust})

@@ -22,6 +22,9 @@
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active"><a class="nav-link" href="/about">About</a></li>
           <li class="nav-item active"><a class="nav-link" href="/ranking">Ranking</a></li>
+          {% if request.user.username == 'kivantium' %}
+          <li class="nav-item active"><a class="nav-link" href="/fix">Fix label</a></li>
+          {% endif %}
         </ul>
         <div class="my-2 my-lg-0">
           {% if request.user.is_authenticated %}

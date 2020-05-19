@@ -11,6 +11,7 @@
         {% endfor %}
       </ul>
       <h2 class="h5 mt-5">新着画像</h2>
+      <p>現在の登録画像数: {{ count }}枚</p>
       <hr>
       <div class="mb-3">
         <label>NSFW画像の表示</label>
@@ -35,6 +36,9 @@
               <a href="/status/{{x.entry.status_id}}/"><img src="{{x.entry.media_url}}"></a>
             </div>
         {% endfor %}
+      </div>
+      <div class="mx-auto mt-4 alert alert-info">
+        <a href="/search/?page=2&order=id" class="text-center" style="display:block">もっと見る</a>
       </div>
     </div>
   </div>
