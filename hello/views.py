@@ -224,6 +224,8 @@ ort_session = onnxruntime.InferenceSession(
     os.path.join(os.path.dirname(__file__), "model.onnx"))
 
 def register(request, status_id):
+    only_girl = True if request.GET.get('girl', default='f') == 't' else False
+
     consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
     consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
     access_token = settings.SOCIAL_AUTH_ACCESS_TOKEN
@@ -232,7 +234,6 @@ def register(request, status_id):
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_secret)
     api = tweepy.API(auth)
-
 
     try:
         status = api.get_status(status_id)
@@ -262,6 +263,7 @@ def register(request, status_id):
         full_text = status.text
     hashtags = hashtag_re.findall(full_text)
 
+    rejected = False
     for num, media in enumerate(status.extended_entities['media']):
         media_url = media['media_url_https']
         filename = os.path.basename(urlparse(media_url).path)
@@ -321,6 +323,25 @@ def register(request, status_id):
         except:
             t = Tag.objects.create(name=rating, tag_type='IV')
         img_entry.tags.add(t)
+
+        if only_girl:
+            has_girl = False
+            names = ['1girl', 'multiple girls', '2girls', '3girls', '4girls']
+            for tag_name in names:
+                try:
+                    t = Tag.objects.get(name=tag_name, tag_type='IV')
+                except:
+                    t = Tag.objects.create(name=tag_name, tag_type='IV')
+                if t in img_entry.tags.all():
+                    has_girl = True
+                    break
+            if not has_girl:
+                img_entry.is_illust = False
+                img_entry.save()
+                rejected = True
+    if rejected:
+        return HttpResponse("Done but rejected.")
+
     return HttpResponse("Done!")
 
 def status(request, status_id):
@@ -351,6 +372,5 @@ def status(request, status_id):
             i2vtags.insert(0, rating)
         i2vtags_list.append(i2vtags)
     hashtags = list(set(hashtags))
-    print(is_illust)
     return render(request, 'hello/status.html', {'status_id': status_id,
         'hashtags': hashtags, 'i2vtags_list': i2vtags_list, 'is_illust': is_illust})
