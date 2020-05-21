@@ -28,10 +28,10 @@
           <label class="form-check-label" for="check_nsfw">NSFW画像を表示する</label>
         </div>
       </div>
-      <div id="images" class="grid no-gutters" ref="grid">
-        <div class="grid-sizer col-4 col-md-3 col-lg-2"></div>
+      <div id="images" class="grid" ref="grid">
+        <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
         {% for entry in image_entry_list %}
-            <div class="grid-item col-4 col-md-3 col-lg-2">
+            <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
               <a href="/status/{{entry.status_id}}/">
                 <img src="{{entry.media_url}}">
               </a>
