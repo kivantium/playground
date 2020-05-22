@@ -22,12 +22,19 @@ import traceback
 from .models import Tag, ImageEntry
 
 def index(request):
-    tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:16]
+    tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
     count = ImageEntry.objects.filter(is_illust=True).count()
     safe_tag = Tag.objects.get(name='safe')
-    image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:50]
-    safe_tag = Tag.objects.get(name='safe')
-    return render(request, 'hello/index.html', {'tag_list': tag_list, 'image_entry_list': image_entry_list,
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:12]
+    new_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-created_at')[:12]
+    now = datetime.datetime.now(pytz.timezone('UTC'))
+    td = datetime.timedelta(hours=24)
+    start = now - td
+    popular_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, created_at__range=(start, now), image_number=0).order_by('-like_count')[:12]
+    return render(request, 'hello/index.html', {'tag_list': tag_list,
+        'image_entry_list': image_entry_list,
+        'new_image_entry_list': new_image_entry_list,
+        'popular_image_entry_list': popular_image_entry_list,
         'count': count})
 
 def about(request):
@@ -144,6 +151,8 @@ def search(request):
 
     if order == 'id':
         image_entry_list = image_entry_list.order_by('-id')
+    elif order == 'created_at':
+        image_entry_list = image_entry_list.order_by('-created_at')
     else:
         image_entry_list = image_entry_list.order_by('-like_count')
 
