@@ -139,15 +139,14 @@ def search(request):
     n = 50
     if tag_name is None:
         image_entry_list = ImageEntry.objects.filter(is_illust=True)
+        count = ImageEntry.objects.filter(is_illust=True).count()
     else:
         try:
             t = Tag.objects.get(name=tag_name)
         except:
             return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
-        if t.tag_type == 'HS':
-            image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
-        else:
-            image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t)
+        image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
+        count = ImageEntry.objects.filter(is_illust=True, tags=t).count()
 
     if order == 'id':
         image_entry_list = image_entry_list.order_by('-id')
@@ -168,8 +167,14 @@ def search(request):
 
 
     checked_page = request.path + '?page={}&order={}'.format(page, order)
+    like_order_page = request.path + '?page={}&order=like'.format(page, order)
+    created_at_order_page = request.path + '?page={}&order=created_at'.format(page, order)
+    id_order_page = request.path + '?page={}&order=id'.format(page, order)
     if tag_name is not None:
         checked_page += '&tag={}'.format(tag_name)
+        like_order_page += '&tag={}'.format(tag_name)
+        created_at_order_page += '&tag={}'.format(tag_name)
+        id_order_page += '&tag={}'.format(tag_name)
     if safe:
         checked_page += '&safe=f'
 
@@ -179,10 +184,15 @@ def search(request):
 
     return render(request, 'hello/search.html', {
         'tag_name': tag_name,
+        'count': count,
+        'order': order,
         'notFound': False,
         'image_entry_list': image_entry_list,
         'safe': safe,
         'checked_page': checked_page,
+        'like_order_page': like_order_page,
+        'created_at_order_page': created_at_order_page,
+        'id_order_page': id_order_page,
         'next_page': next_page})
 
 illust2vec = i2v.make_i2v_with_onnx(

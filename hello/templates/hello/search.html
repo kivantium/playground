@@ -5,9 +5,11 @@
   <div id="app">
     <div class="container mt-5">
       {% if tag_name %}
-        <h2 class="h4"><span class="badge badge-info">{{tag_name}}</span> の検索結果</h2>
+        <h2 class="h4 mb-3"><span class="badge badge-secondary">{{tag_name}}</span> の検索結果</h2>
+        <p>検索結果: {{ count }}件</p>
       {% else %}
-        <h2 class="h4">全ての画像</h2>
+        <h2 class="h4 mb-3">全ての画像</h2>
+        <p>登録画像数: {{ count }}枚</p>
       {% endif %}
       {% if notFound %}
       <p>条件を満たす画像は見つかりませんでした</p>
@@ -16,6 +18,13 @@
     {% if not notFound %}
     <hr>
     <div class="container">
+      <div class="form-group">
+        <select class="form-control" id="order">
+          <option value="like">いいね数が多い順</option>
+          <option value="created_at">投稿日時が新しい順</option>
+          <option value="id">データベース登録が新しい順</option>
+        </select>
+      </div>
       <div class="mb-3">
         <div class="form-check">
           {% if safe %}
@@ -51,6 +60,28 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
+  $(function() {
+    {% if order == 'like' %}
+      $('#order').val('like');
+    {% elif order == 'created_at' %}
+      $('#order').val('created_at');
+    {% else %}
+      $('#order').val('id');
+    {% endif %}
+  });
+  $('#order').change(function() {
+    const order = $('#order').val();
+    if(order == "like") {
+      location.href = "{{ like_order_page|safe }}";
+    } else if(order == "created_at") {
+      location.href = "{{ created_at_order_page|safe }}";
+    } else {
+      location.href = "{{ id_order_page|safe }}";
+    }
+  });
+  $('#show_nsfw').change(function() {
+    location.href = "{{ checked_page|safe }}";
+  });
   var $grid = $('.grid').masonry({
     itemSelector: '.grid-item',
     columnWidth: '.grid-sizer',
@@ -59,9 +90,6 @@
   });
   $grid.imagesLoaded().progress(function() {
     $grid.masonry('layout');
-  });
-  $('#show_nsfw').change(function() {
-    location.href = "{{ checked_page|safe }}";
   });
 </script>
 {% endblock %}
