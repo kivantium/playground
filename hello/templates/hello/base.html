@@ -17,14 +17,23 @@
     {% endif %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>にじさーち</title>
-    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    {% if title %}
+    <title>{{ title }}</title>
+    <meta property="og:title" content="{{ title }}"/>
+    <meta name="twitter:title" content="{{ title }}" />
+    {% else %}
     <meta property="og:title" content="にじさーち"/>
-    <meta property="og:description" content="Twitterに投稿されたイラストを見つけよう" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:site" content="@kivantium" />
     <meta name="twitter:title" content="にじさーち" />
+    {% endif %}
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    {% if description %}
+    <meta property="og:description" content="{{ description }}" />
+    <meta name="twitter:description" content="{{ description }}" /> 
+    {% else %}
+    <meta property="og:description" content="Twitterに投稿されたイラストを見つけよう" />
     <meta name="twitter:description" content="Twitterに投稿されたイラストを見つけよう" /> 
+    {% endif %}
+    <meta name="twitter:card" content="summary" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
     {% load static %}

@@ -5,7 +5,7 @@
   <div id="app">
     <div class="container mt-5">
       <h2 class="h4">デイリーランキング</h2>
-      <p>直近24時間に投稿された収集画像をいいね数順に表示しています。</p>
+      <p>直近24時間に投稿された収集画像をいいね数順に表示しています。クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあります。</p>
     </div>
     <hr>
     <div class="container">
@@ -31,11 +31,14 @@
             </div>
         {% endfor %}
       </div>
-      {% if next_page %}
-      <div class="mx-auto mt-4 alert alert-info">
-        <a href="{{next_page}}" class="text-center" style="display:block">次のページ</a>
+      <div class="clearfix mt-4">
+        {% if previous_page %}
+        <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+        {% endif %}
+        {% if next_page %}
+        <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
   </div>
 </section>

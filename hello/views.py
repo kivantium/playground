@@ -31,14 +31,16 @@ def index(request):
     td = datetime.timedelta(hours=24)
     start = now - td
     popular_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, created_at__range=(start, now), image_number=0).order_by('-like_count')[:12]
-    return render(request, 'hello/index.html', {'tag_list': tag_list,
+    return render(request, 'hello/index.html', {
+        'title': 'にじさーち',
+        'tag_list': tag_list,
         'image_entry_list': image_entry_list,
         'new_image_entry_list': new_image_entry_list,
         'popular_image_entry_list': popular_image_entry_list,
         'count': count})
 
 def about(request):
-    return render(request, 'hello/about.html')
+    return render(request, 'hello/about.html', {'title': 'にじさーちについて'})
 
 def add(request, status_id):
     if request.user.is_authenticated and request.user.username == 'kivantium':
@@ -94,7 +96,10 @@ def fix(request):
         next_page = None
     image_entry_list = image_entry_list[n*(page-1):n*page]
 
-    return render(request, 'hello/fix.html', {'image_entry_list': image_entry_list, 'next_page': next_page})
+    return render(request, 'hello/fix.html', {
+        'title': 'ラベルの修正', 
+        'image_entry_list': image_entry_list, 
+        'next_page': next_page})
 
 def ranking(request):
     page = request.GET.get('page', default='1')
@@ -129,10 +134,13 @@ def ranking(request):
         safe_tag = Tag.objects.get(name='safe')
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
-    return render(request, 'hello/ranking.html', 
-            {'image_entry_list': image_entry_list, 'previous_page': previous_page,
-              'next_page': next_page, 'safe': safe, 'checked_page': checked_page})
-
+    return render(request, 'hello/ranking.html', {
+            'title': 'デイリーランキング - にじさーち',
+            'image_entry_list': image_entry_list,
+            'previous_page': previous_page,
+            'next_page': next_page,
+            'safe': safe,
+            'checked_page': checked_page})
 
 def search(request):
     tag_name = request.GET.get('tag')
@@ -146,6 +154,7 @@ def search(request):
     if tag_name is None:
         image_entry_list = ImageEntry.objects.filter(is_illust=True)
         count = ImageEntry.objects.filter(is_illust=True).count()
+        title = '全てのイラスト - にじさーち'
     else:
         try:
             t = Tag.objects.get(name=tag_name)
@@ -153,6 +162,7 @@ def search(request):
             return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
         image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
         count = ImageEntry.objects.filter(is_illust=True, tags=t).count()
+        title = '{}の検索結果 - にじさーち'.format(tag_name)
 
     if order == 'id':
         image_entry_list = image_entry_list.order_by('-id')
@@ -194,6 +204,7 @@ def search(request):
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
     return render(request, 'hello/search.html', {
+        'title': title,
         'tag_name': tag_name,
         'count': count,
         'order': order,
@@ -424,5 +435,9 @@ def status(request, status_id):
             i2vtags.insert(0, rating)
         i2vtags_list.append(i2vtags)
     hashtags = list(set(hashtags))
-    return render(request, 'hello/status.html', {'status_id': status_id,
-        'hashtags': hashtags, 'i2vtags_list': i2vtags_list, 'is_illust': is_illust})
+    return render(request, 'hello/status.html', {
+        'title': 'ツイート詳細 - にじさーち',
+        'status_id': status_id,
+        'hashtags': hashtags, 
+        'i2vtags_list': i2vtags_list, 
+        'is_illust': is_illust})
