@@ -45,11 +45,14 @@
             </div>
         {% endfor %}
       </div>
-      {% if next_page %}
-      <div class="mx-auto mt-4 alert alert-info">
-        <a href="{{next_page}}" class="text-center" style="display:block">次のページ</a>
+      <div class="clearfix mt-4">
+        {% if previous_page %}
+        <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+        {% endif %}
+        {% if next_page %}
+        <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+        {% endif %}
       </div>
-      {% endif %}
     </div>
     {% endif %}
   </div>

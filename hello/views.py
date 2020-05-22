@@ -114,6 +114,11 @@ def ranking(request):
     else:
         next_page = None
 
+    if page > 1:
+        previous_page = request.path + '?page={}'.format(page-1)
+    else:
+        previous_page = None
+
     image_entry_list = image_entry_list[n*(page-1):n*page]
 
     checked_page = request.path + '?page={}'.format(page)
@@ -125,7 +130,8 @@ def ranking(request):
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
     return render(request, 'hello/ranking.html', 
-            {'image_entry_list': image_entry_list, 'next_page': next_page, 'safe': safe, 'checked_page': checked_page})
+            {'image_entry_list': image_entry_list, 'previous_page': previous_page,
+              'next_page': next_page, 'safe': safe, 'checked_page': checked_page})
 
 
 def search(request):
@@ -155,6 +161,11 @@ def search(request):
     else:
         image_entry_list = image_entry_list.order_by('-like_count')
 
+    if page > 1:
+        previous_page = request.path + '?page={}&order={}'.format(page-1, order)
+    else:
+        previous_page = None
+
     if len(image_entry_list) > n * page:
         next_page = request.path + '?page={}&order={}'.format(page+1, order)
         if tag_name is not None:
@@ -163,8 +174,8 @@ def search(request):
             next_page += '&safe=f'
     else:
         next_page = None
-    image_entry_list = image_entry_list[n*(page-1):n*page]
 
+    image_entry_list = image_entry_list[n*(page-1):n*page]
 
     checked_page = request.path + '?page={}&order={}'.format(page, order)
     like_order_page = request.path + '?page={}&order=like'.format(page, order)
@@ -193,6 +204,7 @@ def search(request):
         'like_order_page': like_order_page,
         'created_at_order_page': created_at_order_page,
         'id_order_page': id_order_page,
+        'previous_page': previous_page,
         'next_page': next_page})
 
 illust2vec = i2v.make_i2v_with_onnx(
