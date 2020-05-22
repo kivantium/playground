@@ -15,7 +15,9 @@ import onnxruntime
 
 from urllib.parse import urlparse
 import urllib.request
+from requests_html import HTMLSession
 from PIL import Image
+import traceback
 
 from .models import Tag, ImageEntry
 
@@ -352,6 +354,25 @@ def status(request, status_id):
         urllib.request.urlopen(url).read()
         image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
                                              .order_by('image_number')
+    else: # Update like count
+        session = HTMLSession()
+        headers = { "X-Requested-With": "XMLHttpRequest", }
+        status_id = image_entry_list[0].status_id
+        url = 'https://twitter.com/i/web/status/{}'.format(status_id)
+        try:
+            r = session.get(url, headers=headers)
+
+            a = r.html.find('#profile-tweet-action-favorite-count-aria-{}'.format(status_id), first=True)
+            b = a.element.getparent()
+            like_count = int(b.get('data-tweet-stat-count'))
+
+            if like_count > image_entry_list[0].like_count:
+                for entry in image_entry_list:
+                    entry.like_count = like_count
+                    entry.save()
+        except:
+            print('Failed to update like_count of {}'.format(status_id))
+            print(traceback.format_exc())
     hashtags = []
     i2vtags_list = []
     is_illust = []
