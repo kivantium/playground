@@ -2,6 +2,9 @@
 <html lang="ja">
   <head>
     {% if GOOGLE_ANALYTICS_TRACKING_ID %}
+      {% if request.user.username == 'kivantium' %}
+      <!-- Google Analytics is disabled. -->
+      {% else %}
       <!-- Global site tag (gtag.js) - Google Analytics -->
       <script async src="https://www.googletagmanager.com/gtag/js?id={{ GOOGLE_ANALYTICS_TRACKING_ID }}"></script>
       <script>
@@ -10,10 +13,18 @@
         gtag('js', new Date());
         gtag('config', '{{ GOOGLE_ANALYTICS_TRACKING_ID }}');
       </script>
+      {% endif %}
     {% endif %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>にじさーち</title>
+    <meta property="og:url" content="{{ request.build_absolute_uri }}" />
+    <meta property="og:title" content="にじさーち"/>
+    <meta property="og:description" content="Twitterに投稿されたイラストを見つけよう" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@kivantium" />
+    <meta name="twitter:title" content="にじさーち" />
+    <meta name="twitter:description" content="Twitterに投稿されたイラストを見つけよう" /> 
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
