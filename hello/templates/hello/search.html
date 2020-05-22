@@ -3,11 +3,11 @@
 {% block content %}
 <section class="section">
   <div id="app">
-    <div class="container my-4">
+    <div class="container mt-5">
       {% if tag_name %}
-        <p class="h5"><span class="badge badge-info">{{tag_name}}</span> の検索結果</p>
+        <h2 class="h4"><span class="badge badge-info">{{tag_name}}</span> の検索結果</h2>
       {% else %}
-        <p class="h5">全ての画像</p>
+        <h2 class="h4">全ての画像</h2>
       {% endif %}
       {% if notFound %}
       <p>条件を満たす画像は見つかりませんでした</p>
@@ -19,13 +19,11 @@
       <div class="mb-3">
         <div class="form-check">
           {% if safe %}
-          <input type="checkbox" class="form-check-input" id="check_nsfw"
-                 v-on:change="changeCheckbox">
+          <input type="checkbox" class="form-check-input" id="show_nsfw"> 
           {% else %}
-          <input type="checkbox" class="form-check-input" id="check_nsfw"
-                 v-on:change="changeCheckbox" checked>
+          <input type="checkbox" class="form-check-input" id="show_nsfw" checked>
           {% endif %}
-          <label class="form-check-label" for="check_nsfw">NSFW画像を表示する</label>
+          <label class="form-check-label" for="show_nsfw">NSFW画像を表示する</label>
         </div>
       </div>
       <div id="images" class="grid" ref="grid">
@@ -53,26 +51,17 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
-  var vm = new Vue({
-    delimiters: ['[[', ']]'],
-    el: '#app',
-    methods: {
-      changeCheckbox: function(event) {
-        location.href = "{{ checked_page|safe }}";
-      }
-    },
-    mounted: function() {
-      this.msnry = new Masonry(this.$refs.grid, {
-        itemSelector: '.grid-item',
-        columnWidth: '.grid-sizer',
-        percentPosition: true,
-        transitionDuration: 0
-      });
-      let t = this;
-      $('#images').imagesLoaded().progress(function(instance, image) {
-        t.msnry.layout();
-      });
-    }
+  var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',
+    columnWidth: '.grid-sizer',
+    percentPosition: true,
+    transitionDuration: 0
+  });
+  $grid.imagesLoaded().progress(function() {
+    $grid.masonry('layout');
+  });
+  $('#show_nsfw').change(function() {
+    location.href = "{{ checked_page|safe }}";
   });
 </script>
 {% endblock %}
