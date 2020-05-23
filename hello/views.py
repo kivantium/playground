@@ -16,6 +16,7 @@ import onnxruntime
 from urllib.parse import urlparse
 import urllib.request
 from requests_html import HTMLSession
+from twitter_scraper import Profile
 from PIL import Image
 import traceback
 
@@ -61,6 +62,63 @@ def add(request, status_id):
         return HttpResponse("Added status {}.".format(status_id))
     else:
         return HttpResponse("You are not allowed to run this operation.")
+
+def author(request, screen_name):
+    page = request.GET.get('page', default='1')
+    page = int(page)
+    order = request.GET.get('order', default='like')
+    safe = request.GET.get('safe', default='t')
+    safe = True if safe == 't' else False
+    title = '@{}さんのイラスト一覧 - にじさーち'.format(screen_name)
+
+    profile = Profile(screen_name)
+    name = profile.name
+    profile_photo = profile.profile_photo
+
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, author_screen_name=screen_name)
+    count = image_entry_list.count()
+
+    n = 50
+    if page > 1:
+        previous_page = request.path + '?page={}&order={}'.format(page-1, order)
+    else:
+        previous_page = None
+
+    if len(image_entry_list) > n * page:
+        next_page = request.path + '?page={}&order={}'.format(page+1, order)
+        if not safe:
+            next_page += '&safe=f'
+    else:
+        next_page = None
+
+    image_entry_list = image_entry_list[n*(page-1):n*page]
+
+    checked_page = request.path + '?page={}&order={}'.format(page, order)
+    like_order_page = request.path + '?order=like'.format(page, order)
+    created_at_order_page = request.path + '?&order=created_at'.format(page, order)
+    id_order_page = request.path + '?&order=id'.format(page, order)
+    if safe:
+        checked_page += '&safe=f'
+
+    if safe:
+        safe_tag = Tag.objects.get(name='safe')
+        image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
+
+    return render(request, 'hello/author.html', {
+        'title': title,
+        'screen_name': screen_name,
+        'name': name,
+        'profile_photo': profile_photo,
+        'count': count,
+        'order': order,
+        'image_entry_list': image_entry_list,
+        'safe': safe,
+        'checked_page': checked_page,
+        'like_order_page': like_order_page,
+        'created_at_order_page': created_at_order_page,
+        'id_order_page': id_order_page,
+        'previous_page': previous_page,
+        'next_page': next_page})
 
 def delete(request, status_id):
     if request.user.is_authenticated and request.user.username == 'kivantium':
@@ -205,10 +263,8 @@ def search(request):
 
     return render(request, 'hello/search.html', {
         'title': title,
-        'tag_name': tag_name,
         'count': count,
         'order': order,
-        'notFound': False,
         'image_entry_list': image_entry_list,
         'safe': safe,
         'checked_page': checked_page,
@@ -438,6 +494,7 @@ def status(request, status_id):
     return render(request, 'hello/status.html', {
         'title': 'ツイート詳細 - にじさーち',
         'status_id': status_id,
+        'screen_name': image_entry_list[0].author_screen_name,
         'hashtags': hashtags, 
         'i2vtags_list': i2vtags_list, 
         'is_illust': is_illust})

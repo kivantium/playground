@@ -32,12 +32,13 @@
       </li>
       {% endfor %}
     </ul>
-  </div>
-  <blockquote class="twitter-tweet tw-align-center" data-conversation="none"><a href="https://twitter.com/user/status/{{status_id}}"></a></blockquote>
-  <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-  <div class="container">
+    <blockquote class="twitter-tweet tw-align-center" data-conversation="none"><a href="https://twitter.com/user/status/{{status_id}}"></a></blockquote>
+    <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    <div class="mt-4 clearfix">
+    <a href="/author/{{ screen_name }}" class="float-left">@{{ screen_name }}さんのイラストをもっと見る</a>
+    </div>
     <hr>
-    <h2 class="h6 mt-5">タグについて</h2>
+    <h3 class="h6 mt-5">タグについて</h3>
     <ul>
       <li><span class="badge badge-info">水色のタグ</span> はツイートに含まれるハッシュタグを表します。</li>
       <li><span class="badge badge-secondary">灰色のタグ</span> はIllustration2Vecを用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある場合は複数行表示します。</li>

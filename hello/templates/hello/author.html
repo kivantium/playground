@@ -1,0 +1,95 @@
+{% extends 'hello/base.html' %}
+
+{% block content %}
+<section class="section">
+  <div class="container">
+    <div class="row my-4 justify-content-center">
+      <div class="col-3 col-lg-2">
+        <a href="https://twitter.com/{{ screen_name }}">
+          <img src=" {{ profile_photo }}" class="img-thumbnail img-fluid rounded-circle" 
+                                          alt="profile photo">
+        </a>
+      </div>
+      <div class="w-100"></div>
+      <div class="col mt-3 text-center"><h2 class="h5">{{ name }}</h2></div>
+      <div class="w-100"></div>
+      <div class="col text-center text-secondary">@{{ screen_name }}</div>
+    </div>
+    <p>登録イラスト数: {{ count }}枚</p>
+    <hr>
+    <div class="form-group">
+      <select class="form-control" id="order">
+        <option value="like">いいね数が多い順</option>
+        <option value="created_at">投稿日時が新しい順</option>
+        <option value="id">データベース登録が新しい順</option>
+      </select>
+    </div>
+    <div class="mb-3">
+      <div class="form-check">
+        {% if safe %}
+        <input type="checkbox" class="form-check-input" id="show_nsfw"> 
+        {% else %}
+        <input type="checkbox" class="form-check-input" id="show_nsfw" checked>
+        {% endif %}
+        <label class="form-check-label" for="show_nsfw">NSFW画像を表示する</label>
+      </div>
+    </div>
+    <div id="images" class="grid" ref="grid">
+      <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
+      {% for entry in image_entry_list %}
+          <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="/status/{{entry.status_id}}/">
+              <img src="{{entry.media_url}}">
+            </a>
+          </div>
+      {% endfor %}
+    </div>
+    <div class="clearfix mt-4">
+      {% if previous_page %}
+      <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+      {% endif %}
+      {% if next_page %}
+      <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script>
+  $(function() {
+    {% if order == 'like' %}
+      $('#order').val('like');
+    {% elif order == 'created_at' %}
+      $('#order').val('created_at');
+    {% else %}
+      $('#order').val('id');
+    {% endif %}
+  });
+  $('#order').change(function() {
+    const order = $('#order').val();
+    if(order == "like") {
+      location.href = "{{ like_order_page|safe }}";
+    } else if(order == "created_at") {
+      location.href = "{{ created_at_order_page|safe }}";
+    } else {
+      location.href = "{{ id_order_page|safe }}";
+    }
+  });
+  $('#show_nsfw').change(function() {
+    location.href = "{{ checked_page|safe }}";
+  });
+  var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',
+    columnWidth: '.grid-sizer',
+    percentPosition: true,
+    transitionDuration: 0
+  });
+  $grid.imagesLoaded().progress(function() {
+    $grid.masonry('layout');
+  });
+</script>
+{% endblock %}
