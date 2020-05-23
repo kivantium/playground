@@ -16,6 +16,9 @@
       <div class="col text-center text-secondary">@{{ screen_name }}</div>
     </div>
     <p>登録イラスト数: {{ count }}枚</p>
+    {% if not isScraped %}
+    <p class="text-danger">現在データ取得中です。しばらくしてから再表示してみてください。</p>
+    {% endif %}
     <hr>
     <div class="form-group">
       <select class="form-control" id="order">

@@ -12,15 +12,35 @@ import os
 import re
 import numpy as np
 import onnxruntime
+import threading
+import time
+import fcntl
 
 from urllib.parse import urlparse
 import urllib.request
 from requests_html import HTMLSession
-from twitter_scraper import Profile
+from twitter_scraper import get_tweets, Profile
 from PIL import Image
 import traceback
 
 from .models import Tag, ImageEntry
+
+def crop_and_resize(img, size):
+    width, height = img.size
+    crop_size = min(width, height)
+    img_crop = img.crop(((width - crop_size) // 2, (height - crop_size) // 2,
+                         (width + crop_size) // 2, (height + crop_size) // 2))
+    return img_crop.resize((size, size))
+
+def softmax(x):
+    e_x = np.exp(x - np.max(x))
+    return e_x / e_x.sum()
+
+img_mean = np.asarray([0.485, 0.456, 0.406])
+img_std = np.asarray([0.229, 0.224, 0.225])
+
+ort_session = onnxruntime.InferenceSession(
+    os.path.join(os.path.dirname(__file__), "model.onnx"))
 
 def index(request):
     tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
@@ -63,6 +83,16 @@ def add(request, status_id):
     else:
         return HttpResponse("You are not allowed to run this operation.")
 
+def get_twitter_api():
+    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
+    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
+    access_token = settings.SOCIAL_AUTH_ACCESS_TOKEN
+    access_secret = settings.SOCIAL_AUTH_ACCESS_SECRET
+
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    return tweepy.API(auth)
+
 def author(request, screen_name):
     page = request.GET.get('page', default='1')
     page = int(page)
@@ -70,6 +100,16 @@ def author(request, screen_name):
     safe = request.GET.get('safe', default='t')
     safe = True if safe == 't' else False
     title = '@{}さんのイラスト一覧 - にじさーち'.format(screen_name)
+
+    filename = os.path.join(os.path.dirname(__file__), 'user_done.txt')
+    with open(filename, 'r') as f:
+        user_done = f.read().splitlines()
+    if screen_name in user_done:
+        isScraped = True
+    else:
+        isScraped = False
+        t = threading.Thread(target=scrape_author, args=(screen_name, ))
+        t.start();
 
     profile = Profile(screen_name)
     name = profile.name
@@ -109,6 +149,7 @@ def author(request, screen_name):
         'screen_name': screen_name,
         'name': name,
         'profile_photo': profile_photo,
+        'isScraped': isScraped,
         'count': count,
         'order': order,
         'image_entry_list': image_entry_list,
@@ -119,6 +160,15 @@ def author(request, screen_name):
         'id_order_page': id_order_page,
         'previous_page': previous_page,
         'next_page': next_page})
+
+def scrape_author(screen_name):
+    filename = os.path.join(os.path.dirname(__file__), 'user_queue.txt')
+    with open(filename, 'a') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            print(screen_name, file=f)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
 def delete(request, status_id):
     if request.user.is_authenticated and request.user.username == 'kivantium':
@@ -310,30 +360,11 @@ def set_i2v_tag(request, status_id):
 # https://gist.github.com/mahmoud/237eb20108b5805aed5f
 hashtag_re = re.compile("(?:^|\s)[＃#]{1}(\w+)", re.UNICODE)
 
-def crop_and_resize(img, size):
-    width, height = img.size
-    crop_size = min(width, height)
-    img_crop = img.crop(((width - crop_size) // 2, (height - crop_size) // 2,
-                         (width + crop_size) // 2, (height + crop_size) // 2))
-    return img_crop.resize((size, size))
-
-img_mean = np.asarray([0.485, 0.456, 0.406])
-img_std = np.asarray([0.229, 0.224, 0.225])
-
-ort_session = onnxruntime.InferenceSession(
-    os.path.join(os.path.dirname(__file__), "model.onnx"))
 
 def register(request, status_id):
     only_girl = True if request.GET.get('girl', default='f') == 't' else False
 
-    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
-    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
-    access_token = settings.SOCIAL_AUTH_ACCESS_TOKEN
-    access_secret = settings.SOCIAL_AUTH_ACCESS_SECRET
-
-    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-    auth.set_access_token(access_token, access_secret)
-    api = tweepy.API(auth)
+    api = get_twitter_api()
 
     try:
         status = api.get_status(status_id)
@@ -382,9 +413,9 @@ def register(request, status_id):
 
         ort_inputs = {ort_session.get_inputs()[0].name: batch_img}
         ort_outs = ort_session.run(None, ort_inputs)[0]
-        result = np.argmax(ort_outs)
+        probs = softmax(ort_outs[0])
 
-        is_illust = True if result == 1 else False
+        is_illust = True if probs[1] > 0.3 else False
 
         img_entry = ImageEntry(status_id=status.id,
                     author_id=status.author.id,
@@ -469,8 +500,7 @@ def status(request, status_id):
                     entry.like_count = like_count
                     entry.save()
         except:
-            print('Failed to update like_count of {}'.format(status_id))
-            print(traceback.format_exc())
+            pass
     hashtags = []
     i2vtags_list = []
     is_illust = []
