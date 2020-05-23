@@ -32,31 +32,21 @@
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
+  var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',
+    columnWidth: '.grid-sizer',
+    percentPosition: true,
+    transitionDuration: 0
+  });
+  $grid.imagesLoaded().progress(function() {
+    $grid.masonry('layout');
+  });
   window.addEventListener( "pageshow", function ( event ) {
     var historyTraversal = event.persisted || 
       ( typeof window.performance != "undefined" && 
         window.performance.navigation.type === 2 );
     if ( historyTraversal ) {
       window.location.reload();
-    }
-  });
-  var vm = new Vue({
-    delimiters: ['[[', ']]'],
-    el: '#app',
-    data: {
-      checked: false,
-    },
-    mounted: function() {
-      this.msnry = new Masonry(this.$refs.grid, {
-        itemSelector: '.grid-item',
-        columnWidth: '.grid-sizer',
-        percentPosition: true,
-        transitionDuration: 0
-      });
-      let t = this;
-      $('#images').imagesLoaded().progress(function(instance, image) {
-        t.msnry.layout();
-      });
     }
   });
 </script>
