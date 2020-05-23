@@ -93,6 +93,12 @@ def get_twitter_api():
     auth.set_access_token(access_token, access_secret)
     return tweepy.API(auth)
 
+def author_search(request):
+    author_list = ImageEntry.objects.filter(is_illust=True).values("author_screen_name").annotate(cnt=Count('author_screen_name')).order_by('-cnt')[:10]
+    return render(request, 'hello/author_search.html', {
+        'title': '絵師検索 - にじさーち',
+        'author_list': author_list})
+
 def author(request, screen_name):
     page = request.GET.get('page', default='1')
     page = int(page)
@@ -101,6 +107,24 @@ def author(request, screen_name):
     safe = True if safe == 't' else False
     title = '@{}さんのイラスト一覧 - にじさーち'.format(screen_name)
 
+    try:
+        profile = Profile(screen_name)
+        name = profile.name
+        profile_photo = profile.profile_photo
+    except:
+        return render(request, 'hello/author.html', {
+            'title': title,
+            'notFound': True,
+            'screen_name': screen_name})
+
+    api = get_twitter_api()
+    user = api.get_user(screen_name=screen_name)
+    if user.protected:
+        return render(request, 'hello/author.html', {
+            'title': title,
+            'isPrivate': True,
+            'screen_name': screen_name})
+
     filename = os.path.join(os.path.dirname(__file__), 'user_done.txt')
     with open(filename, 'r') as f:
         user_done = f.read().splitlines()
@@ -108,12 +132,17 @@ def author(request, screen_name):
         isScraped = True
     else:
         isScraped = False
-        t = threading.Thread(target=scrape_author, args=(screen_name, ))
-        t.start();
-
-    profile = Profile(screen_name)
-    name = profile.name
-    profile_photo = profile.profile_photo
+        image_entry_list = ImageEntry.objects.filter(is_illust=True, author_screen_name=screen_name)
+        if image_entry_list:
+            t = threading.Thread(target=scrape_author, args=(screen_name, ))
+            t.start();
+        else:
+            filename = os.path.join(os.path.dirname(__file__), 'new_user.txt')
+            with open(filename, 'r') as f:
+                new_user = f.read().splitlines()
+            if screen_name not in new_user:
+                with open(filename, 'a') as f:
+                    print(screen_name, file=f)
 
     image_entry_list = ImageEntry.objects.filter(is_illust=True, author_screen_name=screen_name)
     count = image_entry_list.count()
@@ -146,6 +175,7 @@ def author(request, screen_name):
 
     return render(request, 'hello/author.html', {
         'title': title,
+        'notFound': False,
         'screen_name': screen_name,
         'name': name,
         'profile_photo': profile_photo,
@@ -163,6 +193,10 @@ def author(request, screen_name):
 
 def scrape_author(screen_name):
     filename = os.path.join(os.path.dirname(__file__), 'user_queue.txt')
+    with open(filename, 'r') as f:
+        user_queue = f.read().splitlines()
+    if screen_name in user_queue:
+        return
     with open(filename, 'a') as f:
         fcntl.flock(f.fileno(), fcntl.LOCK_EX)
         try:

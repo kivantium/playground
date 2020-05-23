@@ -3,6 +3,15 @@
 {% block content %}
 <section class="section">
   <div class="container">
+    {% if notFound %}
+    <h2 class="h4 mt-5">絵師検索</h2>
+    <p>@{{ screen_name }}の情報を取得できませんでした。アカウントが存在しない可能性があります。</p>
+    <a href="/author" class="btn btn-primary">検索画面に戻る</a>
+    {% elif isPrivate %}
+    <h2 class="h4 mt-5">絵師検索</h2>
+    <p>@{{ screen_name }}は非公開アカウントです。</p>
+    <a href="/author" class="btn btn-primary">検索画面に戻る</a>
+    {% else %}
     <div class="row my-4 justify-content-center">
       <div class="col-3 col-lg-2">
         <a href="https://twitter.com/{{ screen_name }}">
@@ -55,6 +64,7 @@
       <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
       {% endif %}
     </div>
+    {% endif %}
   </div>
 </section>
 {% endblock %}
