@@ -347,6 +347,7 @@ def search(request):
 
     return render(request, 'hello/search.html', {
         'title': title,
+        'tag_name': tag_name,
         'count': count,
         'order': order,
         'image_entry_list': image_entry_list,
