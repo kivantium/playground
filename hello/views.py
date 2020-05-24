@@ -94,7 +94,7 @@ def get_twitter_api():
     return tweepy.API(auth)
 
 def author_search(request):
-    author_list = ImageEntry.objects.filter(is_illust=True).values("author_screen_name").annotate(cnt=Count('author_screen_name')).order_by('-cnt')[:10]
+    author_list = ImageEntry.objects.filter(is_illust=True).values("author_screen_name").annotate(cnt=Count('author_screen_name')).order_by('-cnt')[:30]
     return render(request, 'hello/author_search.html', {
         'title': '絵師検索 - にじさーち',
         'author_list': author_list})

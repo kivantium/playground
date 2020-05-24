@@ -64,7 +64,7 @@ def handle_tweet(tweet):
         ort_inputs = {ort_session.get_inputs()[0].name: batch_img}
         ort_outs = ort_session.run(None, ort_inputs)[0]
         probs = softmax(ort_outs[0])
-        time.sleep(1)
+        time.sleep(3)
 
         if probs[1] > 0.1:
             include2d = True
@@ -88,7 +88,7 @@ def handle_tweet(tweet):
             print('Response: {}'.format(res))
         except:
             print(traceback.format_exc())
-        time.sleep(5)
+        time.sleep(10)
 
 
 file_done = os.path.join(os.path.dirname(__file__), 'hello/user_done.txt')
@@ -108,8 +108,6 @@ with open(filename, 'r') as f:
 for screen_name in user_queue:
     if screen_name in user_done:
         continue
-    with open(file_done, 'a') as f_done:
-        print(screen_name, file=f_done)
     now = datetime.now(timezone('Asia/Tokyo'))
     print('\n\n{} Start scraping  @{})'.format(
         now.strftime('%Y-%m-%d %H:%M:%S'), screen_name))
@@ -117,6 +115,14 @@ for screen_name in user_queue:
     for tweet in get_tweets(screen_name):
         if not tweet['entries']['photos']:
             continue
-        if not tweet['likes'] < 50:
+        if tweet['likes'] < 50:
             continue
         handle_tweet(tweet)
+
+    now = datetime.now(timezone('Asia/Tokyo'))
+    print('\n\n{} Finish scraping  @{})'.format(
+        now.strftime('%Y-%m-%d %H:%M:%S'), screen_name))
+
+    with open(file_done, 'a') as f_done:
+        print(screen_name, file=f_done)
+    break
