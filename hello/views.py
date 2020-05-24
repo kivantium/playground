@@ -304,7 +304,7 @@ def search(request):
             return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
         image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
         count = ImageEntry.objects.filter(is_illust=True, tags=t).count()
-        title = '{}の検索結果 - にじさーち'.format(tag_name)
+        title = '{}のイラスト検索結果 - にじさーち'.format(tag_name)
 
     if order == 'id':
         image_entry_list = image_entry_list.order_by('-id')
