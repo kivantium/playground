@@ -411,7 +411,18 @@ def register(request, status_id):
 
     if status.author.protected:
         return HttpResponse("The author {} is protected.".format(status.author.screen_name))
+    if status.author.verified:
+        return HttpResponse('The author @{} is a verified user.'.format(status.author.screen_name))
     if 'media' not in status.entities:
+        log_file_name = os.path.join(os.path.dirname(__file__), "failed_status.txt")
+        now = datetime.now(timezone('Asia/Tokyo'))
+        with open(log_file_name, 'a+') as f:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                print('{} @{} {}'.format(now.strftime('%Y-%m-%d %H:%M:%S'), 
+                    status.author.screen_name, status.id), file=f)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
         return HttpResponse("Status id {} does not include any media.".format(status_id))
 
     entries = ImageEntry.objects.filter(status_id=status_id)
