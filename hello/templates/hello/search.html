@@ -1,18 +1,23 @@
 {% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% if tag_name %}{% blocktrans %}{{ tag_name }}のイラスト検索結果{% endblocktrans %} - {% trans "にじさーち" %}{% else %}{% trans "全てのイラスト" %} - {% trans "にじさーち" %}
+{% endif %}
+{% endblock %}{% endblock %}{% endblock %}
 
 {% block content %}
 <section class="section">
   <div id="app">
     <div class="container mt-5">
       {% if tag_name %}
-        <h2 class="h4 mb-3"><span class="badge badge-secondary">{{tag_name}}</span> のイラスト検索結果</h2>
-        <p>検索結果: {{ count }}件</p>
+        <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-secondary">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+        <p>{% blocktrans %}検索結果: {{ count }}件{% endblocktrans %}</p>
       {% else %}
-        <h2 class="h4 mb-3">全てのイラスト</h2>
-        <p>登録画像数: {{ count }}枚</p>
+      <h2 class="h4 mb-3">{% trans "全てのイラスト" %}</h2>
+      <p>{% blocktrans %}登録画像数: {{ count }}枚{% endblocktrans %}</p>
       {% endif %}
       {% if notFound %}
-      <p>条件を満たす画像は見つかりませんでした</p>
+      <p>{% trans "条件を満たす画像は見つかりませんでした" %}</p>
       {% endif %}
     </div>
     {% if not notFound %}
@@ -20,9 +25,9 @@
     <div class="container">
       <div class="form-group">
         <select class="form-control" id="order">
-          <option value="like">いいね数が多い順</option>
-          <option value="created_at">投稿日時が新しい順</option>
-          <option value="id">データベース登録が新しい順</option>
+          <option value="like">{% trans "いいね数が多い順" %}</option>
+          <option value="created_at">{% trans "投稿日時が新しい順" %}</option>
+          <option value="id">{% trans "データベース登録が新しい順" %}</option>
         </select>
       </div>
       <div class="mb-3">
@@ -32,7 +37,7 @@
           {% else %}
           <input type="checkbox" class="form-check-input" id="show_nsfw" checked>
           {% endif %}
-          <label class="form-check-label" for="show_nsfw">NSFW画像を表示する</label>
+          <label class="form-check-label" for="show_nsfw">{% trans "NSFW画像を表示する" %}</label>
         </div>
       </div>
       <div id="images" class="grid" ref="grid">
@@ -47,10 +52,10 @@
       </div>
       <div class="clearfix mt-4">
         {% if previous_page %}
-        <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+        <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</button>
         {% endif %}
         {% if next_page %}
-        <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+        <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</button>
         {% endif %}
       </div>
     </div>

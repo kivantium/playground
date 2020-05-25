@@ -1,4 +1,7 @@
 {% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}@{{ screen_name }}{% trans "さんのイラスト一覧" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block meta %}
 <meta name="robots" content="noindex">
@@ -8,13 +11,13 @@
 <section class="section">
   <div class="container">
     {% if notFound %}
-    <h2 class="h4 mt-5">絵師検索</h2>
-    <p>@{{ screen_name }}の情報を取得できませんでした。アカウントが存在しない可能性があります。</p>
-    <a href="/author" class="btn btn-primary">検索画面に戻る</a>
+    <h2 class="h4 mt-5">{% trans "絵師検索" %}</h2>
+    <p>{% blocktrans %}@{{ screen_name }}の情報を取得できませんでした。アカウントが存在しない可能性があります。{% endblocktrans %}</p>
+    <a href="/author" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% elif isPrivate %}
-    <h2 class="h4 mt-5">絵師検索</h2>
-    <p>@{{ screen_name }}は非公開アカウントです。</p>
-    <a href="/author" class="btn btn-primary">検索画面に戻る</a>
+    <h2 class="h4 mt-5">{% trans "絵師検索" %}</h2>
+    <p>{% blocktrans %}@{{ screen_name }}は非公開アカウントです。{% endblocktrans %}</p>
+    <a href="/author" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% else %}
     <div class="row my-4 justify-content-center">
       <div class="col-3 col-lg-2">
@@ -28,16 +31,16 @@
       <div class="w-100"></div>
       <div class="col text-center text-secondary">@{{ screen_name }}</div>
     </div>
-    <p>登録イラスト数: {{ count }}枚</p>
+    <p>{% blocktrans %}登録イラスト数: {{ count }}枚{% endblocktrans %}</p>
     {% if not isScraped %}
-    <p class="text-danger">現在データ取得中です。しばらくしてから再表示してみてください。</p>
+    <p class="text-danger">{% trans "現在データ取得中です。しばらくしてから再表示してみてください。" %}</p>
     {% endif %}
     <hr>
     <div class="form-group">
       <select class="form-control" id="order">
-        <option value="like">いいね数が多い順</option>
-        <option value="created_at">投稿日時が新しい順</option>
-        <option value="id">データベース登録が新しい順</option>
+        <option value="like">{% trans "いいね数が多い順" %}</option>
+        <option value="created_at">{% trans "投稿日時が新しい順" %}</option>
+        <option value="id">{% trans "データベース登録が新しい順" %}</option>
       </select>
     </div>
     <div class="mb-3">
@@ -47,7 +50,7 @@
         {% else %}
         <input type="checkbox" class="form-check-input" id="show_nsfw" checked>
         {% endif %}
-        <label class="form-check-label" for="show_nsfw">NSFW画像を表示する</label>
+        <label class="form-check-label" for="show_nsfw">{% trans "NSFW画像を表示する"%}</label>
       </div>
     </div>
     <div id="images" class="grid" ref="grid">
@@ -62,10 +65,10 @@
     </div>
     <div class="clearfix mt-4">
       {% if previous_page %}
-      <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+      <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</button>
       {% endif %}
       {% if next_page %}
-      <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+      <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</button>
       {% endif %}
     </div>
     {% endif %}

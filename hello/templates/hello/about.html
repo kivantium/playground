@@ -1,7 +1,12 @@
 {% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% trans "にじさーちについて" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
+  <p class="text-center">Sorry, this page is Japanese only!</p>
+ 
   <h3>にじさーちについて</h3>
   <p>Twitterにはたくさんのイラストが投稿されていますが、Twitterのイラスト検索機能はpixivなどのイラストに特化したサイトと比べると貧弱で、好みのイラストを探すのが難しくなっています。このページはTwitter上のイラスト閲覧に特化したサイトを目指して開発を進めています。</p>
   <ul>

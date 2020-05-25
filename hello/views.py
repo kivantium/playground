@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from social_django.models import UserSocialAuth
 from django.conf import settings
+from django.utils import translation
 from django.http import HttpResponse
 from django.db.models import Count
 
@@ -53,7 +54,6 @@ def index(request):
     start = now - td
     popular_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, created_at__range=(start, now), image_number=0).order_by('-like_count')[:12]
     return render(request, 'hello/index.html', {
-        'title': 'にじさーち',
         'tag_list': tag_list,
         'image_entry_list': image_entry_list,
         'new_image_entry_list': new_image_entry_list,
@@ -61,7 +61,7 @@ def index(request):
         'count': count})
 
 def about(request):
-    return render(request, 'hello/about.html', {'title': 'にじさーちについて'})
+    return render(request, 'hello/about.html')
 
 def add(request, status_id):
     if request.user.is_authenticated and request.user.username == 'kivantium':
@@ -96,7 +96,6 @@ def get_twitter_api():
 def author_search(request):
     author_list = ImageEntry.objects.filter(is_illust=True).values("author_screen_name").annotate(cnt=Count('author_screen_name')).order_by('-cnt')[:30]
     return render(request, 'hello/author_search.html', {
-        'title': '絵師検索 - にじさーち',
         'author_list': author_list})
 
 def author(request, screen_name):
@@ -105,7 +104,6 @@ def author(request, screen_name):
     order = request.GET.get('order', default='like')
     safe = request.GET.get('safe', default='t')
     safe = True if safe == 't' else False
-    title = '@{}さんのイラスト一覧 - にじさーち'.format(screen_name)
 
     try:
         profile = Profile(screen_name)
@@ -121,7 +119,6 @@ def author(request, screen_name):
     user = api.get_user(screen_name=screen_name)
     if user.protected:
         return render(request, 'hello/author.html', {
-            'title': title,
             'isPrivate': True,
             'screen_name': screen_name})
 
@@ -174,7 +171,6 @@ def author(request, screen_name):
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
     return render(request, 'hello/author.html', {
-        'title': title,
         'notFound': False,
         'screen_name': screen_name,
         'name': name,
@@ -239,7 +235,6 @@ def fix(request):
     image_entry_list = image_entry_list[n*(page-1):n*page]
 
     return render(request, 'hello/fix.html', {
-        'title': 'ラベルの修正', 
         'image_entry_list': image_entry_list, 
         'next_page': next_page})
 
@@ -277,7 +272,6 @@ def ranking(request):
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
     return render(request, 'hello/ranking.html', {
-            'title': 'デイリーランキング - にじさーち',
             'image_entry_list': image_entry_list,
             'previous_page': previous_page,
             'next_page': next_page,

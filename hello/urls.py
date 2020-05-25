@@ -19,4 +19,5 @@ urlpatterns = [
     path('logout/',
         django.contrib.auth.views.LogoutView.as_view(template_name = 'hello/logout.html'),
         name='logout'),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]

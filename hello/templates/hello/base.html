@@ -1,3 +1,4 @@
+{% load i18n %}
 <!doctype html>
 <html lang="ja">
   <head>
@@ -17,22 +18,12 @@
     {% endif %}
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    {% if title %}
-    <title>{{ title }}</title>
-    <meta property="og:title" content="{{ title }}"/>
-    <meta name="twitter:title" content="{{ title }}" />
-    {% else %}
-    <meta property="og:title" content="にじさーち"/>
-    <meta name="twitter:title" content="にじさーち" />
-    {% endif %}
+    <title>{% block page_title %}{% endblock %}</title>
+    <meta property="og:description" content="{% trans "Twitterに投稿されたイラストを見つけよう" %}" />
+    <meta property="twitter:description" content="{% trans "Twitterに投稿されたイラストを見つけよう" %}" />
+    <meta property="og:title" content="{% block og_title %}{% endblock %}"/>
+    <meta name="twitter:title" content="{% block twitter_title %}{% endblock %}" />
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
-    {% if description %}
-    <meta property="og:description" content="{{ description }}" />
-    <meta name="twitter:description" content="{{ description }}" /> 
-    {% else %}
-    <meta property="og:description" content="Twitterに投稿されたイラストを見つけよう" />
-    <meta name="twitter:description" content="Twitterに投稿されたイラストを見つけよう" /> 
-    {% endif %}
     <meta name="twitter:card" content="summary" />
     {% block meta %}
     {% endblock %}
@@ -46,26 +37,40 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark" style="background-color: #00d1b2;">
-      <a href="/" class="navbar-brand mb-0 h1 font-weight-bold">にじさーち</a>
+      <a href="/" class="navbar-brand mb-0 h1 font-weight-bold">{% trans "にじさーち" %}</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item"><a class="nav-link" href="/search/?page=1&order=created_at">全てのイラスト</a></li>
-          <li class="nav-item"><a class="nav-link" href="/ranking/">デイリーランキング</a></li>
-          <li class="nav-item"><a class="nav-link" href="/author/">絵師検索</a></li>
+          <li class="nav-item"><a class="nav-link" href="/search/?page=1&order=created_at">{% trans "全てのイラスト" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="/ranking/">{% trans "デイリーランキング" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="/author/">{% trans "絵師検索" %}</a></li>
         </ul>
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="/about">にじさーちについて</a></li>
+          <li class="nav-item"><a class="nav-link" href="/about">{% trans "にじさーちについて" %}</a></li>
+          <li class="nav-item">
+            {% get_current_language as LANGUAGE_CODE %}
+            {% get_available_languages as LANGUAGES %}
+            {% get_language_info_list for LANGUAGES as languages %}
+
+            <form name="lang_form" action="{% url 'set_language' %}" method="post">{% csrf_token %}
+              {% for language in languages %}
+              {% if language.code != LANGUAGE_CODE %}
+              <input name="language" type="hidden" value="{{ language.code }}">
+              <a href="javascript:lang_form.submit()" class="nav-link">{{ language.name_local }}</a>
+              {% endif %}
+              {% endfor %}
+            </form>
+          </li>
           {% if request.user.username == 'kivantium' %}
-          <li class="nav-item"><a class="nav-link" href="/fix">ラベルの修正</a></li>
+          <li class="nav-item"><a class="nav-link" href="/fix">{% trans "ラベルの修正" %}</a></li>
           {% endif %}
         </ul>
         <div class="my-2 my-lg-0">
           {% if request.user.is_authenticated %}
-          <button type="button" class="btn btn-light" onclick="location.href='/logout'">ログアウト</button>
+          <button type="button" class="btn btn-light" onclick="location.href='/logout'">{% trans "ログアウト" %}</button>
           {% endif %}
         </div>
       </div>
@@ -79,7 +84,7 @@
     {% endif %}
     {% if NINJA_ADMAX_URL_LG %}
     <div class="container d-none d-md-block" style="margin-top: 5rem; text-align: center;">
-    <p class="text-center mb-0"><small>広告</small></p>
+      <p class="text-center mb-0"><small>{% trans "広告" %}</small></p>
     <script src="{{ NINJA_ADMAX_URL_LG }}"></script>
     </div>
     {% endif %}

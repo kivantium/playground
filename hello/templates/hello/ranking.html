@@ -1,11 +1,14 @@
 {% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% trans "デイリーランキング" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block content %}
 <section class="section">
   <div id="app">
     <div class="container mt-5">
-      <h2 class="h4">デイリーランキング</h2>
-      <p>直近24時間に投稿された収集画像をいいね数順に表示しています。クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあります。</p>
+      <h2 class="h4">{% trans "デイリーランキング" %}</h2>
+      <p>{% trans "直近24時間に投稿された収集画像をいいね数順に表示しています。" %}{% trans "クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあります。" %}</p>
     </div>
     <hr>
     <div class="container">
@@ -18,7 +21,7 @@
           <input type="checkbox" class="form-check-input" id="check_nsfw"
                  v-on:change="changeCheckbox" checked>
           {% endif %}
-          <label class="form-check-label" for="check_nsfw">NSFW画像を表示する</label>
+          <label class="form-check-label" for="check_nsfw">{% trans "NSFW画像を表示する" %}</label>
         </div>
       </div>
       <div id="images" class="grid" ref="grid">
@@ -33,10 +36,10 @@
       </div>
       <div class="clearfix mt-4">
         {% if previous_page %}
-        <a href="{{ previous_page }}" class="btn btn-link float-left">&lt;&lt; 前のページ</button>
+        <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</button>
         {% endif %}
         {% if next_page %}
-        <a href="{{ next_page }}" class="btn btn-link float-right">次のページ &gt;&gt;</button>
+        <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</button>
         {% endif %}
       </div>
     </div>

@@ -1,4 +1,7 @@
 {% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% trans "ラベルの修正" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block content %}
 <section class="section">
