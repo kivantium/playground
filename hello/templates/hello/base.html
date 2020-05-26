@@ -37,19 +37,22 @@
   </head>
   <body>
     <nav class="navbar navbar-expand-md navbar-dark" style="background-color: #00d1b2;">
-      <a href="/" class="navbar-brand mb-0 h1 font-weight-bold">{% trans "にじさーち" %}</a>
+      <a href="{% url 'index' %}" class="navbar-brand mb-0 h1 font-weight-bold">{% trans "にじさーち" %}</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item"><a class="nav-link" href="/search/?page=1&order=created_at">{% trans "全てのイラスト" %}</a></li>
-          <li class="nav-item"><a class="nav-link" href="/ranking/">{% trans "デイリーランキング" %}</a></li>
-          <li class="nav-item"><a class="nav-link" href="/author/">{% trans "絵師検索" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'search' %}?page=1&order=created_at">{% trans "全てのイラスト" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'ranking' %}">{% trans "デイリーランキング" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'author_search' %}">{% trans "絵師検索" %}</a></li>
         </ul>
         <ul class="navbar-nav ml-auto">
-          <li class="nav-item"><a class="nav-link" href="/about">{% trans "にじさーちについて" %}</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">{% trans "にじさーちについて" %}</a></li>
+          {% if request.user.username == 'kivantium' %}
+          <li class="nav-item"><a class="nav-link" href="{% url 'fix' %}">{% trans "ラベルの修正" %}</a></li>
+          {% endif %}
           <li class="nav-item">
             {% get_current_language as LANGUAGE_CODE %}
             {% get_available_languages as LANGUAGES %}
@@ -64,15 +67,7 @@
               {% endfor %}
             </form>
           </li>
-          {% if request.user.username == 'kivantium' %}
-          <li class="nav-item"><a class="nav-link" href="/fix">{% trans "ラベルの修正" %}</a></li>
-          {% endif %}
         </ul>
-        <div class="my-2 my-lg-0">
-          {% if request.user.is_authenticated %}
-          <button type="button" class="btn btn-light" onclick="location.href='/logout'">{% trans "ログアウト" %}</button>
-          {% endif %}
-        </div>
       </div>
     </nav>
     {% block content %}

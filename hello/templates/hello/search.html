@@ -44,7 +44,7 @@
         <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
         {% for entry in image_entry_list %}
             <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-              <a href="/status/{{entry.status_id}}/">
+              <a href="{% url 'status' entry.status_id %}">
                 <img src="{{entry.media_url}}">
               </a>
             </div>

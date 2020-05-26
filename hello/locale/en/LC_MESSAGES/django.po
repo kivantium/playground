@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-26 00:25+0900\n"
+"POT-Creation-Date: 2020-05-26 16:39+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,29 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: templates/hello/about.html:5 templates/hello/base.html:52
+#: templates/hello/about.html:4 templates/hello/base.html:52
 msgid "にじさーちについて"
 msgstr "About"
 
-#: templates/hello/author.html:5
+#: templates/hello/author.html:4
 #, fuzzy
 msgid "さんのイラスト一覧"
 msgstr "'s illustrations"
 
-#: templates/hello/author.html:5 templates/hello/author_search.html:5
-#: templates/hello/base.html:40 templates/hello/fix.html:5
-#: templates/hello/index.html:5 templates/hello/ranking.html:5
-#: templates/hello/search.html:5 templates/hello/search.html:6
-#: templates/hello/status.html:5
+#: templates/hello/author.html:4 templates/hello/author_search.html:4
+#: templates/hello/base.html:40 templates/hello/fix.html:4
+#: templates/hello/index.html:4 templates/hello/ranking.html:4
+#: templates/hello/search.html:4 templates/hello/status.html:4
 msgid "にじさーち"
 msgstr "Nijisearch"
 
-#: templates/hello/author.html:16 templates/hello/author.html:20
-#: templates/hello/author_search.html:5 templates/hello/author_search.html:11
+#: templates/hello/author.html:14 templates/hello/author.html:18
+#: templates/hello/author_search.html:4 templates/hello/author_search.html:9
 #: templates/hello/base.html:49
 msgid "絵師検索"
 msgstr "Artist search"
 
-#: templates/hello/author.html:17
+#: templates/hello/author.html:15
 #, python-format
 msgid ""
 "@%(screen_name)sの情報を取得できませんでした。アカウントが存在しない可能性が"
@@ -50,70 +49,70 @@ msgstr ""
 "Could not retrieve the information of @%(screen_name)s. The account may not "
 "exist."
 
-#: templates/hello/author.html:18 templates/hello/author.html:22
+#: templates/hello/author.html:16 templates/hello/author.html:20
 msgid "検索画面に戻る"
 msgstr "Back to search"
 
-#: templates/hello/author.html:21
+#: templates/hello/author.html:19
 #, python-format
 msgid "@%(screen_name)sは非公開アカウントです。"
 msgstr "@%(screen_name)s is private."
 
-#: templates/hello/author.html:36
+#: templates/hello/author.html:34
 #, fuzzy, python-format
 msgid "登録イラスト数: %(count)s枚"
 msgstr "Registered illustrations: %(count)s"
 
-#: templates/hello/author.html:38
+#: templates/hello/author.html:36
 msgid "現在データ取得中です。しばらくしてから再表示してみてください。"
 msgstr ""
 "The information of this illustration is in preparation. Please visit again "
 "later."
 
-#: templates/hello/author.html:43 templates/hello/search.html:30
+#: templates/hello/author.html:41 templates/hello/search.html:28
 msgid "いいね数が多い順"
 msgstr "Order by number of likes"
 
-#: templates/hello/author.html:44 templates/hello/search.html:31
+#: templates/hello/author.html:42 templates/hello/search.html:29
 msgid "投稿日時が新しい順"
 msgstr "Order by posted date"
 
-#: templates/hello/author.html:45 templates/hello/search.html:32
+#: templates/hello/author.html:43 templates/hello/search.html:30
 msgid "データベース登録が新しい順"
 msgstr "Order by registered date"
 
-#: templates/hello/author.html:55 templates/hello/ranking.html:26
-#: templates/hello/search.html:42
+#: templates/hello/author.html:53 templates/hello/ranking.html:24
+#: templates/hello/search.html:40
 msgid "NSFW画像を表示する"
 msgstr "Show NSFW illustrations"
 
-#: templates/hello/author.html:70 templates/hello/ranking.html:41
-#: templates/hello/search.html:57
+#: templates/hello/author.html:68 templates/hello/ranking.html:39
+#: templates/hello/search.html:55
 msgid "&lt;&lt; 前のページ"
 msgstr "&lt;&lt; Previous page"
 
-#: templates/hello/author.html:73 templates/hello/ranking.html:44
-#: templates/hello/search.html:60
+#: templates/hello/author.html:71 templates/hello/ranking.html:42
+#: templates/hello/search.html:58
 msgid "次のページ &gt;&gt;"
 msgstr "Next page &gt;&gt;"
 
-#: templates/hello/author_search.html:14
+#: templates/hello/author_search.html:12
 msgid "アカウント名"
 msgstr "Screen name of the artist"
 
-#: templates/hello/author_search.html:16
+#: templates/hello/author_search.html:14
 msgid "@を除いて入力してください（例: @kamieshi→kamieshi）"
 msgstr "Don't include @ of the screen name. (e.g. @artist -> artist)"
 
-#: templates/hello/author_search.html:18
+#: templates/hello/author_search.html:16
 msgid "検索"
 msgstr "Search"
 
-#: templates/hello/author_search.html:21
+#: templates/hello/author_search.html:19
 msgid "登録画像数が多い人"
 msgstr "Artists ordered by the number of registered illustrations"
 
-#: templates/hello/author_search.html:24 templates/hello/index.html:13
+#: templates/hello/author_search.html:22 templates/hello/index.html:11
 msgid "枚"
 msgstr " "
 
@@ -121,114 +120,105 @@ msgstr " "
 msgid "Twitterに投稿されたイラストを見つけよう"
 msgstr "Let's find illustrations posted on Twitter."
 
-#: templates/hello/base.html:47 templates/hello/search.html:6
-#: templates/hello/search.html:18
+#: templates/hello/base.html:47 templates/hello/search.html:4
+#: templates/hello/search.html:16
 msgid "全てのイラスト"
 msgstr "All illustrations"
 
-#: templates/hello/base.html:48 templates/hello/index.html:51
-#: templates/hello/ranking.html:5 templates/hello/ranking.html:12
+#: templates/hello/base.html:48 templates/hello/index.html:49
+#: templates/hello/ranking.html:4 templates/hello/ranking.html:10
 msgid "デイリーランキング"
 msgstr "Daily ranking"
 
-#: templates/hello/base.html:68 templates/hello/fix.html:5
+#: templates/hello/base.html:54 templates/hello/fix.html:4
 msgid "ラベルの修正"
 msgstr "Fix label"
 
-#: templates/hello/base.html:73
-msgid "ログアウト"
-msgstr "Logout"
-
-#: templates/hello/base.html:87
+#: templates/hello/base.html:82
 msgid "広告"
 msgstr "Advertisement"
 
-#: templates/hello/index.html:13
+#: templates/hello/index.html:11
 msgid "現在の登録画像数:"
 msgstr "Currently registered images:"
 
-#: templates/hello/index.html:15
+#: templates/hello/index.html:13
 msgid "登録数の多いタグ"
 msgstr "Most registered tags"
 
-#: templates/hello/index.html:21
+#: templates/hello/index.html:19
 msgid "新しく投稿されたイラスト"
 msgstr "Newly posted illutrations"
 
-#: templates/hello/index.html:33
+#: templates/hello/index.html:31
 msgid "新しく投稿されたイラストをもっと見る"
 msgstr "See more newly posted illustrations"
 
-#: templates/hello/index.html:36
+#: templates/hello/index.html:34
 msgid "新しく登録されたイラスト"
 msgstr "Newly registered illustrations"
 
-#: templates/hello/index.html:48
+#: templates/hello/index.html:46
 msgid "新しく登録されたイラストをもっと見る"
 msgstr "See more newly registered illustrations"
 
-#: templates/hello/index.html:63
+#: templates/hello/index.html:61
 msgid "デイリーランキングをもっと見る"
 msgstr "See more daily ranking"
 
-#: templates/hello/ranking.html:13
+#: templates/hello/ranking.html:11
 msgid "直近24時間に投稿された収集画像をいいね数順に表示しています。"
 msgstr ""
 "Illustrations posted in this 24 hours are shown in the order of the number "
 "of likes. "
 
-#: templates/hello/ranking.html:13
+#: templates/hello/ranking.html:11
 msgid ""
 "クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあ"
 "ります。"
 msgstr "The number of likes may not be up-to-date."
 
-#: templates/hello/search.html:5
+#: templates/hello/search.html:4
 #, fuzzy, python-format
-#| msgid ""
-#| "<span class=\"badge badge-secondary\">%(tag_name)s</span> のイラスト検索結"
-#| "果"
 msgid "%(tag_name)sのイラスト検索結果"
 msgstr ""
-"Search result of <span class=\"badge badge-secondary\">%(tag_name)s</span>"
+"Search result of %(tag_name)s</span>"
 
-#: templates/hello/search.html:15
+#: templates/hello/search.html:13
 #, python-format
 msgid ""
 "<span class=\"badge badge-secondary\">%(tag_name)s</span> のイラスト検索結果"
 msgstr ""
 "Search result of <span class=\"badge badge-secondary\">%(tag_name)s</span>"
 
-#: templates/hello/search.html:16
+#: templates/hello/search.html:14
 #, python-format
 msgid "検索結果: %(count)s件"
 msgstr "Number of results: %(count)s"
 
-#: templates/hello/search.html:19
+#: templates/hello/search.html:17
 #, python-format
 msgid "登録画像数: %(count)s枚"
 msgstr "Registered illustrations: %(count)s"
 
-#: templates/hello/search.html:22
+#: templates/hello/search.html:20
 msgid "条件を満たす画像は見つかりませんでした"
 msgstr "No illustration found"
 
-#: templates/hello/status.html:5 templates/hello/status.html:11
+#: templates/hello/status.html:4 templates/hello/status.html:9
 msgid "ツイート詳細"
 msgstr "Tweet details"
 
-#: templates/hello/status.html:43
-#, fuzzy, python-format
-#| msgid "新しく投稿されたイラストをもっと見る"
+#: templates/hello/status.html:41
+#, python-format
 msgid "@%(screen_name)sさんのイラストをもっと見る"
 msgstr "See more illustrations by @%(screen_name)s"
 
-#: templates/hello/status.html:46
-#, fuzzy
+#: templates/hello/status.html:44
 msgid "タグについて"
 msgstr "About tags"
 
-#: templates/hello/status.html:48
+#: templates/hello/status.html:46
 msgid ""
 "<span class=\"badge badge-info\">水色のタグ</span> はツイートに含まれるハッ"
 "シュタグを表します。"
@@ -236,7 +226,7 @@ msgstr ""
 "<span class=\"badge badge-info\">Blue tags</span> mean hashtags included in "
 "the tweet."
 
-#: templates/hello/status.html:49
+#: templates/hello/status.html:47
 msgid ""
 "<span class=\"badge badge-secondary\">灰色のタグ</span> はIllustration2Vecを"
 "用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある"
@@ -244,3 +234,6 @@ msgid ""
 msgstr ""
 "<span class=\"badge badge-secondary\">gray tags</span> mean tags estimated "
 "by Illustration2Vec. Each line corresponds to each image."
+
+#~ msgid "ログアウト"
+#~ msgstr "Logout"

@@ -409,7 +409,7 @@ def register(request, status_id):
         return HttpResponse('The author @{} is a verified user.'.format(status.author.screen_name))
     if 'media' not in status.entities:
         log_file_name = os.path.join(os.path.dirname(__file__), "failed_status.txt")
-        now = datetime.now(timezone('Asia/Tokyo'))
+        now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
         with open(log_file_name, 'a+') as f:
             fcntl.flock(f.fileno(), fcntl.LOCK_EX)
             try:

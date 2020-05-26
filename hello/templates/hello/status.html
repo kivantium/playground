@@ -11,15 +11,15 @@
     <div class="clearfix">
       <div class="float-right">
         <span>{% for b in is_illust %} {% if b %} True {% else %} False {% endif %} {% endfor %}</span>
-        <a class="btn btn-danger" href="/delete/{{status_id}}">削除する</a>
-        <a class="btn btn-success" href="/add/{{status_id}}">追加する</a>
+        <a class="btn btn-danger" href="{% url 'delete' status_id %}">削除する</a>
+        <a class="btn btn-success" href="{% url 'add' status_id %}">追加する</a>
       </div>
     </div>
     {% endif %}
     <hr>
     <ul class="list-inline">
       {% for tag in hashtags %}
-      <li class="list-inline-item"><a href="/search?tag={{tag.name}}" class="badge badge-info">{{tag.name}}</a></li>
+      <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name}}" class="badge badge-info">{{tag.name}}</a></li>
       {% endfor %}
     </ul>
     <ul>
@@ -27,7 +27,7 @@
       <li>
         <ul class="list-inline">
           {% for tag in i2vtags %}
-          <li class="list-inline-item"><a href="/search?tag={{tag.name}}" class="badge badge-secondary">{{tag.name}}</a></li>
+          <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name}}" class="badge badge-secondary">{{tag.name}}</a></li>
           {% empty %}
           <li class="list-inline-item"><span class="badge badge-warning">No Data</span></li>
           {% endfor %}
@@ -38,7 +38,7 @@
     <blockquote class="twitter-tweet tw-align-center" data-conversation="none"><a href="https://twitter.com/user/status/{{status_id}}"></a></blockquote>
     <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <div class="mt-4 clearfix">
-      <a href="/author/{{ screen_name }}" class="float-left">{% blocktrans %}@{{ screen_name }}さんのイラストをもっと見る{% endblocktrans %}</a>
+      <a href="{% url 'author' screen_name %}" class="float-left">{% blocktrans %}@{{ screen_name }}さんのイラストをもっと見る{% endblocktrans %}</a>
     </div>
     <hr>
     <h3 class="h6 mt-5">{% trans "タグについて" %}</h3>

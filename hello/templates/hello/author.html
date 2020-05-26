@@ -13,11 +13,11 @@
     {% if notFound %}
     <h2 class="h4 mt-5">{% trans "絵師検索" %}</h2>
     <p>{% blocktrans %}@{{ screen_name }}の情報を取得できませんでした。アカウントが存在しない可能性があります。{% endblocktrans %}</p>
-    <a href="/author" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
+    <a href="{% url 'author_search' %}" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% elif isPrivate %}
     <h2 class="h4 mt-5">{% trans "絵師検索" %}</h2>
     <p>{% blocktrans %}@{{ screen_name }}は非公開アカウントです。{% endblocktrans %}</p>
-    <a href="/author" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
+    <a href="{% url 'author' %}" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% else %}
     <div class="row my-4 justify-content-center">
       <div class="col-3 col-lg-2">
@@ -57,7 +57,7 @@
       <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
       {% for entry in image_entry_list %}
           <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="/status/{{entry.status_id}}/">
+            <a href="{% url 'status' entry.status_id %}">
               <img src="{{entry.media_url}}">
             </a>
           </div>
