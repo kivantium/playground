@@ -41,6 +41,9 @@
       <a href="{% url 'author' screen_name %}" class="float-left">{% blocktrans %}@{{ screen_name }}さんのイラストをもっと見る{% endblocktrans %}</a>
     </div>
     <hr>
+    <p>{% trans "このツイートがイラストを含まない場合は報告してください" %}</p>
+    <button type="button" id="report" class="btn btn-danger">{% trans "報告する" %}</button>
+    <hr>
     <h3 class="h6 mt-5">{% trans "タグについて" %}</h3>
     <ul>
       <li>{% blocktrans %}<span class="badge badge-info">水色のタグ</span> はツイートに含まれるハッシュタグを表します。{% endblocktrans %}</li>
@@ -48,4 +51,25 @@
     </ul>
   </div>
 </div>
+{% endblock %}
+
+{% block script%}
+<script>
+  $('#report').click(function() {
+    if(confirm('{% trans "このツイートを報告しますか？" %}')) {
+      $.ajax({
+        url:'{% url 'report'  status_id %}',
+        type:'GET',
+      })
+        .done( (data) => {
+          alert('{% trans "報告が完了しました。ご協力ありがとうございます。" %}');
+        })
+        .fail( (data) => {
+          alert('{% trans "報告に失敗しました。" %}');
+        })
+    } else {
+      return false;
+    }
+  });
+</script>
 {% endblock %}

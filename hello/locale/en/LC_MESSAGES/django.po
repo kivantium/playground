@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-26 16:39+0900\n"
+"POT-Creation-Date: 2020-05-26 22:31+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,6 @@ msgid "にじさーちについて"
 msgstr "About"
 
 #: templates/hello/author.html:4
-#, fuzzy
 msgid "さんのイラスト一覧"
 msgstr "'s illustrations"
 
@@ -181,8 +180,7 @@ msgstr "The number of likes may not be up-to-date."
 #: templates/hello/search.html:4
 #, fuzzy, python-format
 msgid "%(tag_name)sのイラスト検索結果"
-msgstr ""
-"Search result of %(tag_name)s</span>"
+msgstr "Search result of %(tag_name)s</span>"
 
 #: templates/hello/search.html:13
 #, python-format
@@ -215,10 +213,18 @@ msgid "@%(screen_name)sさんのイラストをもっと見る"
 msgstr "See more illustrations by @%(screen_name)s"
 
 #: templates/hello/status.html:44
+msgid "このツイートがイラストを含まない場合は報告してください"
+msgstr "If this tweet does not include any illustrations, please report it."
+
+#: templates/hello/status.html:45
+msgid "報告する"
+msgstr "Report"
+
+#: templates/hello/status.html:47
 msgid "タグについて"
 msgstr "About tags"
 
-#: templates/hello/status.html:46
+#: templates/hello/status.html:49
 msgid ""
 "<span class=\"badge badge-info\">水色のタグ</span> はツイートに含まれるハッ"
 "シュタグを表します。"
@@ -226,7 +232,7 @@ msgstr ""
 "<span class=\"badge badge-info\">Blue tags</span> mean hashtags included in "
 "the tweet."
 
-#: templates/hello/status.html:47
+#: templates/hello/status.html:50
 msgid ""
 "<span class=\"badge badge-secondary\">灰色のタグ</span> はIllustration2Vecを"
 "用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある"
@@ -234,6 +240,18 @@ msgid ""
 msgstr ""
 "<span class=\"badge badge-secondary\">gray tags</span> mean tags estimated "
 "by Illustration2Vec. Each line corresponds to each image."
+
+#: templates/hello/status.html:59
+msgid "このツイートを報告しますか？"
+msgstr "Do you want to report this tweet?"
+
+#: templates/hello/status.html:65
+msgid "報告が完了しました。ご協力ありがとうございます。"
+msgstr "Report completed. Thank you for your cooperation."
+
+#: templates/hello/status.html:68
+msgid "報告に失敗しました。"
+msgstr "Report failed."
 
 #~ msgid "ログアウト"
 #~ msgstr "Logout"

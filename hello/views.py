@@ -200,6 +200,34 @@ def scrape_author(screen_name):
         finally:
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
+def report(request, status_id):
+    forwarded_addresses = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_addresses:
+        client_addr = forwarded_addresses.split(',')[0]
+    else:
+        client_addr = request.META.get('REMOTE_ADDR')
+
+    report_log = os.path.join(os.path.dirname(__file__), "report_log.csv")
+    with open(report_log, 'a+') as f:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+        try:
+            now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
+            print('{},{},{}'.format(now.strftime('%Y-%m-%d %H:%M:%S'), 
+                status_id, client_addr), file=f)
+        finally:
+            fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+    image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+
+    if not image_entry_list:
+        return HttpResponse("Status {} is not registered.".format(status_id))
+
+    for entry in image_entry_list:
+        entry.is_illust = False
+        entry.save()
+
+    return HttpResponse("Deleted status {}.".format(status_id))
+
 def delete(request, status_id):
     if request.user.is_authenticated and request.user.username == 'kivantium':
         image_entry_list = ImageEntry.objects.filter(status_id=status_id)

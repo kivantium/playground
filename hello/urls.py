@@ -14,6 +14,7 @@ urlpatterns = [
     path('register/<int:status_id>/', views.register, name='register'),
     path('add/<int:status_id>/', views.add, name='add'),
     path('delete/<int:status_id>/', views.delete, name='delete'),
+    path('report/<int:status_id>/', views.report, name='report'),
     path('set_i2v_tag/<int:status_id>/', views.set_i2v_tag, name='set_i2v_tag'),
     path('search/', views.search, name='search'),
     path('logout/',
