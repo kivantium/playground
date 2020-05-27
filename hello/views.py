@@ -313,20 +313,30 @@ def search(request):
     order = request.GET.get('order', default='like')
     safe = request.GET.get('safe', default='t')
     safe = True if safe == 't' else False
+    text = request.GET.get('text')
 
     n = 50
-    if tag_name is None:
+    if tag_name is None and text is None:
         image_entry_list = ImageEntry.objects.filter(is_illust=True)
         count = ImageEntry.objects.filter(is_illust=True).count()
-        title = '全てのイラスト - にじさーち'
-    else:
+    elif tag_name is not None:
         try:
             t = Tag.objects.get(name=tag_name)
         except:
-            return render(request, 'hello/search.html', {'tag_name': tag_name, 'notFound': True})
-        image_entry_list = ImageEntry.objects.filter(tags=t).filter(is_illust=True, image_number=0)
-        count = ImageEntry.objects.filter(is_illust=True, tags=t).count()
-        title = '{}のイラスト検索結果 - にじさーち'.format(tag_name)
+            return render(request, 'hello/search.html', {
+                'tag_name': tag_name, 'notFound': True, 'count': 0})
+        image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t)
+        count = image_entry_list.count()
+        if count == 0:
+            return render(request, 'hello/search.html', {
+                'text': text, 'notFound': True, 'count': 0})
+    else:
+        image_entry_list = ImageEntry.objects.filter(is_illust=True, text__contains=text, image_number=0)
+        image_entry_list = ImageEntry.objects.filter(is_illust=True, text__contains=text)
+        count = image_entry_list.count()
+        if count == 0:
+            return render(request, 'hello/search.html', {
+                'text': text, 'notFound': True, 'count': 0})
 
     if order == 'id':
         image_entry_list = image_entry_list.order_by('-id')
@@ -335,15 +345,21 @@ def search(request):
     else:
         image_entry_list = image_entry_list.order_by('-like_count')
 
+    query = ""
+    if tag_name is not None:
+        query += '&tag={}'.format(tag_name)
+    if text is not None:
+        query += '&text={}'.format(text)
+
     if page > 1:
-        previous_page = request.path + '?page={}&order={}'.format(page-1, order)
+        previous_page = request.path + '?{}&page={}&order={}'.format(query, page-1, order)
+        if not safe:
+            previous_page += '&safe=f'
     else:
         previous_page = None
 
     if len(image_entry_list) > n * page:
-        next_page = request.path + '?page={}&order={}'.format(page+1, order)
-        if tag_name is not None:
-            next_page += '&tag={}'.format(tag_name)
+        next_page = request.path + '?{}&page={}&order={}'.format(query, page+1, order)
         if not safe:
             next_page += '&safe=f'
     else:
@@ -351,15 +367,10 @@ def search(request):
 
     image_entry_list = image_entry_list[n*(page-1):n*page]
 
-    checked_page = request.path + '?page={}&order={}'.format(page, order)
-    like_order_page = request.path + '?page={}&order=like'.format(page, order)
-    created_at_order_page = request.path + '?page={}&order=created_at'.format(page, order)
-    id_order_page = request.path + '?page={}&order=id'.format(page, order)
-    if tag_name is not None:
-        checked_page += '&tag={}'.format(tag_name)
-        like_order_page += '&tag={}'.format(tag_name)
-        created_at_order_page += '&tag={}'.format(tag_name)
-        id_order_page += '&tag={}'.format(tag_name)
+    checked_page = request.path + '?{}&page={}&order={}'.format(query, page, order)
+    like_order_page = request.path + '?{}&order=like'.format(query)
+    created_at_order_page = request.path + '?{}&order=created_at'.format(query)
+    id_order_page = request.path + '?{}&order=id'.format(query)
     if safe:
         checked_page += '&safe=f'
 
@@ -368,8 +379,8 @@ def search(request):
         image_entry_list = [entry for entry in image_entry_list if safe_tag in entry.tags.all()]
 
     return render(request, 'hello/search.html', {
-        'title': title,
         'tag_name': tag_name,
+        'text': text,
         'count': count,
         'order': order,
         'image_entry_list': image_entry_list,

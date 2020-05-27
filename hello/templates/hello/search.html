@@ -1,17 +1,19 @@
 {% extends 'hello/base.html' %}
 {% load i18n %}
 
-{% block page_title%}{% block twitter_title %}{% block og_title %}{% if tag_name %}{% blocktrans %}{{ tag_name }}のイラスト検索結果{% endblocktrans %} - {% trans "にじさーち" %}{% else %}{% trans "全てのイラスト" %} - {% trans "にじさーち" %}
-{% endif %}
-{% endblock %}{% endblock %}{% endblock %}
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% if tag_name %}{% blocktrans %}{{ tag_name }}のイラスト検索結果{% endblocktrans %}{% elif text %}{% blocktrans %}{{ text }}のイラスト検索結果{% endblocktrans %}{% else %}{% trans "全てのイラスト" %}{% endif %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block content %}
 <section class="section">
   <div id="app">
     <div class="container mt-5">
+      {% if tag_name or text %}
       {% if tag_name %}
-        <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-secondary">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
-        <p>{% blocktrans %}検索結果: {{ count }}件{% endblocktrans %}</p>
+      <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-secondary">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+      {% else %}
+      <h2 class="h4 mb-3">{% blocktrans %}<span class="font-weight-bold">{{ text }}</span> のイラスト検索結果{% endblocktrans %}</h2>
+      {% endif %}
+      <p>{% blocktrans %}検索結果: {{ count }}件{% endblocktrans %}</p>
       {% else %}
       <h2 class="h4 mb-3">{% trans "全てのイラスト" %}</h2>
       <p>{% blocktrans %}登録画像数: {{ count }}枚{% endblocktrans %}</p>
