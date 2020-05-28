@@ -6,5 +6,8 @@ class ImageEntryAdmin(admin.ModelAdmin):
     search_fields = ('status_id', )
     filter_horizontal = ('tags', )
 
-admin.site.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    search_fields = ('name', )
+
+admin.site.register(Tag, TagAdmin)
 admin.site.register(ImageEntry, ImageEntryAdmin)
