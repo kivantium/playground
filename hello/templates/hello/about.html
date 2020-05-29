@@ -16,24 +16,27 @@
   <hr>
   <h4>実装済み機能</h4>
   <ul>
-    <li>二次元画像の自動収集</li>
-    <ul>
-      <li>Imagenetでpre-trainされたSqueezenetをイラストかどうかを判定できるようファインチューニングしたモデルを使って二次元画像を自動で収集します。（参考: <a href="https://kivantium.hateblo.jp/entry/2020/04/18/010827">二次元画像判別器の作成に関する基礎検討</a>　<a href="https://kivantium.hateblo.jp/entry/2020/04/25/003218">PyTorchでファインチューニングしたモデルをONNXで利用する</a>）</li>
-    </ul>
-    <li>自動タグ付け</li>
-    <ul>
-      <li><a href="https://github.com/rezoo/illustration2vec">Illustration2Vec</a>を用いて収集した画像に自動でタグ付けを行います。</li>
-    </ul>
+    <li>二次元画像の自動収集
+      <ul>
+        <li>Imagenetでpre-trainされたSqueezenetをイラストかどうかを判定できるようファインチューニングしたモデルを使って二次元画像を自動で収集します。（参考: <a href="https://kivantium.hateblo.jp/entry/2020/04/18/010827">二次元画像判別器の作成に関する基礎検討</a>　<a href="https://kivantium.hateblo.jp/entry/2020/04/25/003218">PyTorchでファインチューニングしたモデルをONNXで利用する</a>）</li>
+      </ul>
+    </li>
+    <li>自動タグ付け
+      <ul>
+        <li><a href="https://github.com/rezoo/illustration2vec">Illustration2Vec</a>を用いて収集した画像に自動でタグ付けを行います。</li>
+      </ul>
+    </li>
     <li>特定のユーザーが過去に投稿したイラストを表示する
       <ul>
         <li>APIで取得しきれない過去のイラストや、機械学習がイラストだと判定できなかったイラストについては手動で登録できるようにする仕組みをそのうち用意したいです。</li>
       </ul>
     </li>
-    <li>キーワードまたはタグによるイラスト検索</li>
+    <li>キーワードまたはタグによるイラスト検索
       <ul>
         <li>キーワード検索はツイート本文に含まれる単語を検索します</li>
         <li>今のところAND検索には対応していません。スペースは文字列の一部として解釈されます。</li>
       </ul>
+    </li>
     <li>リストからイラストを含むツイートだけを選んで表示（<strong>サーバーに負荷がかかるので現在は提供していません</strong>）</li>
   </ul>
   <h4>実装したい機能</h4>
@@ -75,5 +78,7 @@
   <p><a href="https://elaws.e-gov.go.jp/search/elawsSearch/elaws_search/lsg0500/detail?lawId=345M50000080026#71">著作権法施行規則第四条の五</a>に定められた「著作物等の利用を適正に行うために必要な措置」として、当該要件の解釈を記載した書類を閲覧し、連絡先として<a href="https://forms.gle/4nuyFsqxqFrKe8Uz9">問い合わせフォーム</a>を設置しました。</p>
   <h5 class="mt-4">ツイートが見にくいです</h5>
   <p>Twitter APIを利用してツイートを表示する際には<a href="https://developer.twitter.com/en/developer-terms/display-requirements">Display requirements</a>に従うよう定められているのですが、これに準拠するのはとても面倒なのでとりあえずデフォルトの埋め込み機能を使っています。そのうち改善したいです。</p>
+  <h5 class="mt-4">サーバー代をカンパしたいです</h5>
+  <p><a href="https://kivantium.fanbox.cc/">pixivFANBOX</a>で支援してくれると助かります</p>
 </div>
 {% endblock %}

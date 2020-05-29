@@ -19,7 +19,7 @@
     <hr>
     <ul class="list-inline">
       {% for tag in hashtags %}
-      <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name}}" class="badge badge-info">{{tag.name}}</a></li>
+      <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-info">{{tag.name}}</a></li>
       {% endfor %}
     </ul>
     <ul>
@@ -27,7 +27,7 @@
       <li>
         <ul class="list-inline">
           {% for tag in i2vtags %}
-          <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name}}" class="badge badge-secondary">{{tag.name}}</a></li>
+          <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-secondary">{{tag.name}}</a></li>
           {% empty %}
           <li class="list-inline-item"><span class="badge badge-warning">No Data</span></li>
           {% endfor %}
@@ -39,6 +39,18 @@
     <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     <div class="mt-4 clearfix">
       <a href="{% url 'author' screen_name %}" class="float-left">{% blocktrans %}@{{ screen_name }}さんのイラストをもっと見る{% endblocktrans %}</a>
+    </div>
+    <div class="my-5">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="horizontal"
+           data-ad-client="ca-pub-2828660212063348"
+           data-ad-slot="4211442369"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </div>
     <hr>
     <p>{% trans "このツイートがイラストを含まない場合は報告してください" %}</p>

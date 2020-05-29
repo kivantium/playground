@@ -7,7 +7,7 @@
 <section class="section">
   <div class="container">
     <h2 class="h4 mt-5">{% trans "絵師検索" %}</h2>
-    <form id="name_form" method="" action="">
+    <form id="name_form">
       <div class="form-group">
         <label for="screen_name">{% trans "アカウント名" %}</label>
         <input type="text" class="form-control" id="screen_name">
@@ -15,8 +15,20 @@
       </div>
       <button type="submit" class="btn btn-primary">{% trans "検索" %}</button>
     </form>
+    <div class="my-5">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="horizontal"
+           data-ad-client="ca-pub-2828660212063348"
+           data-ad-slot="4211442369"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
     <hr>
-    <h3 class="h5 mt-5">{% trans "登録画像数が多い人" %}</h2>
+    <h3 class="h5 mt-5">{% trans "登録画像数が多い人" %}</h3>
     <ul class="mt-3">
       {% for author in author_list %}
       <li class="my-2"><a href="{% url 'author' author.author_screen_name %}">@{{ author.author_screen_name }}</a>: {{ author.cnt }}{% trans "枚" %}</li>

@@ -17,7 +17,7 @@ import threading
 import time
 import fcntl
 
-from urllib.parse import urlparse
+from urllib.parse import urlparse, quote
 import urllib.request
 from requests_html import HTMLSession
 from twitter_scraper import get_tweets, Profile
@@ -45,6 +45,7 @@ ort_session = onnxruntime.InferenceSession(
 
 def index(request):
     tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
+    tag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in tag_list]
     count = ImageEntry.objects.filter(is_illust=True).count()
     safe_tag = Tag.objects.get(name='safe')
     image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:12]
@@ -598,8 +599,10 @@ def status(request, status_id):
                     i2vtags.append(tag)
         if rating is not None:
             i2vtags.insert(0, rating)
+        i2vtags = [{"name": t.name, "name_escape": quote(t.name)} for t in i2vtags]
         i2vtags_list.append(i2vtags)
     hashtags = list(set(hashtags))
+    hashtags = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtags]
     return render(request, 'hello/status.html', {
         'title': 'ツイート詳細 - にじさーち',
         'status_id': status_id,

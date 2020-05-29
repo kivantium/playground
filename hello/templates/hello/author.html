@@ -35,6 +35,18 @@
     {% if not isScraped %}
     <p class="text-danger">{% trans "現在データ取得中です。しばらくしてから再表示してみてください。" %}</p>
     {% endif %}
+    <div class="my-5">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="horizontal"
+           data-ad-client="ca-pub-2828660212063348"
+           data-ad-slot="4211442369"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
     <hr>
     <div class="form-group">
       <select class="form-control" id="order">
@@ -53,22 +65,22 @@
         <label class="form-check-label" for="show_nsfw">{% trans "NSFW画像を表示する"%}</label>
       </div>
     </div>
-    <div id="images" class="grid" ref="grid">
+    <div id="images" class="grid">
       <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
       {% for entry in image_entry_list %}
           <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
             <a href="{% url 'status' entry.status_id %}">
-              <img src="{{entry.media_url}}">
+              <img src="{{entry.media_url}}" alt={% trans "イラスト" %}>
             </a>
           </div>
       {% endfor %}
     </div>
     <div class="clearfix mt-4">
       {% if previous_page %}
-      <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</button>
+      <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</a>
       {% endif %}
       {% if next_page %}
-      <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</button>
+      <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</a>
       {% endif %}
     </div>
     {% endif %}
