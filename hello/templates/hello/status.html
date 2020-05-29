@@ -7,6 +7,7 @@
 <div id="app">
   <div class="container">
     <h2 class="h5 mt-5"><a href="#" onClick="history.back(); return false;"><span class="icon"><i class="fa fa-arrow-left"></i></span></a>{% trans "ツイート詳細" %}</h2>
+    {% if i2vtags_list %}
     {% if request.user.username == 'kivantium' %}
     <div class="clearfix">
       <div class="float-right">
@@ -35,11 +36,17 @@
       </li>
       {% endfor %}
     </ul>
+    {% else %}
+    <hr>
+    <p>新しいツイートのため情報を取得中です。数秒待ってから更新してください。</p>
+    {% endif %}
     <blockquote class="twitter-tweet tw-align-center" data-conversation="none"><a href="https://twitter.com/user/status/{{status_id}}"></a></blockquote>
     <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    {% if i2vtags_list %}
     <div class="mt-4 clearfix">
       <a href="{% url 'author' screen_name %}" class="float-left">{% blocktrans %}@{{ screen_name }}さんのイラストをもっと見る{% endblocktrans %}</a>
     </div>
+    {% endif %}
     <div class="my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"

@@ -4,6 +4,7 @@ from django.conf import settings
 from django.utils import translation
 from django.http import HttpResponse
 from django.db.models import Count
+from django.utils.timezone import make_aware
 
 import datetime
 import tweepy
@@ -505,7 +506,7 @@ def register(request, status_id):
                     retweet_count=status.retweet_count,
                     like_count=status.favorite_count,
                     media_url=media_url,
-                    created_at=status.created_at,
+                    created_at=make_aware(status.created_at),
                     is_illust=is_illust)
         img_entry.save()
 
@@ -547,22 +548,38 @@ def register(request, status_id):
                     has_girl = True
                     break
             if not has_girl:
-                img_entry.is_illust = False
-                img_entry.save()
                 rejected = True
+        # Reject monochrome image
+        try:
+            t = Tag.objects.get(name='monochrome', tag_type='IV')
+        except:
+            t = Tag.objects.create(name='monochrome', tag_type='IV')
+        if t in img_entry.tags.all():
+            img_entry.is_illust = False
+            img_entry.save()
+            rejected = True
     if rejected:
+        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+        for entry in image_entry_list:
+            entry.is_illust = False
+            entry.save()
         return HttpResponse("Done but rejected.")
-
     return HttpResponse("Done!")
+
+def register_status(url):
+    urllib.request.urlopen(url).read()
 
 def status(request, status_id):
     image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
                                          .order_by('image_number')
     if not image_entry_list:
         url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
-        urllib.request.urlopen(url).read()
-        image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
-                                             .order_by('image_number')
+        t = threading.Thread(target=register_status, args=(url, ))
+        t.start();
+        return render(request, 'hello/status.html', {
+            'title': 'ツイート詳細 - にじさーち',
+            'status_id': status_id,
+            'screen_name': 'unknown'})
     else: # Update like count
         session = HTMLSession()
         headers = { "X-Requested-With": "XMLHttpRequest", }
@@ -581,32 +598,32 @@ def status(request, status_id):
                     entry.save()
         except:
             pass
-    hashtags = []
-    i2vtags_list = []
-    is_illust = []
-    for image_entry in image_entry_list:
-        is_illust.append(image_entry.is_illust)
-        tags = image_entry.tags.all()
-        i2vtags = []
-        rating = None
-        for tag in tags:
-            if tag.tag_type == 'HS':
-                hashtags.append(tag)
-            elif tag.tag_type == 'IV':
-                if tag.name in ['safe', 'questionable', 'explicit']:
-                    rating = tag
-                else:
-                    i2vtags.append(tag)
-        if rating is not None:
-            i2vtags.insert(0, rating)
-        i2vtags = [{"name": t.name, "name_escape": quote(t.name)} for t in i2vtags]
-        i2vtags_list.append(i2vtags)
-    hashtags = list(set(hashtags))
-    hashtags = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtags]
-    return render(request, 'hello/status.html', {
-        'title': 'ツイート詳細 - にじさーち',
-        'status_id': status_id,
-        'screen_name': image_entry_list[0].author_screen_name,
-        'hashtags': hashtags, 
-        'i2vtags_list': i2vtags_list, 
-        'is_illust': is_illust})
+        hashtags = []
+        i2vtags_list = []
+        is_illust = []
+        for image_entry in image_entry_list:
+            is_illust.append(image_entry.is_illust)
+            tags = image_entry.tags.all()
+            i2vtags = []
+            rating = None
+            for tag in tags:
+                if tag.tag_type == 'HS':
+                    hashtags.append(tag)
+                elif tag.tag_type == 'IV':
+                    if tag.name in ['safe', 'questionable', 'explicit']:
+                        rating = tag
+                    else:
+                        i2vtags.append(tag)
+            if rating is not None:
+                i2vtags.insert(0, rating)
+            i2vtags = [{"name": t.name, "name_escape": quote(t.name)} for t in i2vtags]
+            i2vtags_list.append(i2vtags)
+        hashtags = list(set(hashtags))
+        hashtags = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtags]
+        return render(request, 'hello/status.html', {
+            'title': 'ツイート詳細 - にじさーち',
+            'status_id': status_id,
+            'screen_name': image_entry_list[0].author_screen_name,
+            'hashtags': hashtags, 
+            'i2vtags_list': i2vtags_list, 
+            'is_illust': is_illust})
