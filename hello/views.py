@@ -202,6 +202,44 @@ def scrape_author(screen_name):
         finally:
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
+def tweets(request, screen_name):
+    try:
+        profile = Profile(screen_name)
+        name = profile.name
+        profile_photo = profile.profile_photo
+    except:
+        return render(request, 'hello/tweets.html', {
+            'title': title,
+            'notFound': True,
+            'screen_name': screen_name})
+
+    api = get_twitter_api()
+    user = api.get_user(screen_name=screen_name)
+    if user.protected:
+        return render(request, 'hello/tweets.html', {
+            'isPrivate': True,
+            'screen_name': screen_name})
+
+    tweets = get_tweets(screen_name, pages=3)
+    tweet_list = []
+    for tweet in tweets:
+        if tweet['isRetweet']:
+            continue
+        if tweet['entries']['photos']:
+            entries = ImageEntry.objects.filter(status_id=tweet['tweetId'])
+            if entries:
+                registered = True
+            else:
+                registered = False
+            tweet_list.append({"registered": registered, "tweetId": tweet['tweetId']})
+
+    return render(request, 'hello/tweets.html', {
+        'notFound': False,
+        'screen_name': screen_name,
+        'name': name,
+        'profile_photo': profile_photo,
+        'tweet_list': tweet_list})
+
 def report(request, status_id):
     forwarded_addresses = request.META.get('HTTP_X_FORWARDED_FOR')
     if forwarded_addresses:
@@ -274,7 +312,7 @@ def ranking(request):
     safe = request.GET.get('safe', default='t')
     safe = True if safe == 't' else False
     now = datetime.datetime.now(pytz.timezone('UTC'))
-    td = datetime.timedelta(hours=24)
+    td = datetime.timedelta(hours=33)
     start = now - td
     image_entry_list = ImageEntry.objects.filter(created_at__range=(start, now)).filter(is_illust=True).filter(image_number=0).order_by('-like_count')
 
@@ -497,6 +535,8 @@ def register(request, status_id):
         probs = softmax(ort_outs[0])
 
         is_illust = True if probs[1] > 0.3 else False
+        if not is_illust:
+            rejected = True
 
         img_entry = ImageEntry(status_id=status.id,
                     author_id=status.author.id,

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-05-27 21:02+0900\n"
+"POT-Creation-Date: 2020-05-30 22:28+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,7 +22,7 @@ msgstr ""
 msgid "にじさーちについて"
 msgstr "About"
 
-#: templates/hello/author.html:4
+#: templates/hello/author.html:4 templates/hello/tweets.html:4
 msgid "さんのイラスト一覧"
 msgstr "'s illustrations"
 
@@ -30,16 +30,18 @@ msgstr "'s illustrations"
 #: templates/hello/base.html:40 templates/hello/fix.html:4
 #: templates/hello/index.html:4 templates/hello/ranking.html:4
 #: templates/hello/search.html:4 templates/hello/status.html:4
+#: templates/hello/tweets.html:4
 msgid "にじさーち"
 msgstr "Nijisearch"
 
 #: templates/hello/author.html:14 templates/hello/author.html:18
 #: templates/hello/author_search.html:4 templates/hello/author_search.html:9
-#: templates/hello/base.html:49
+#: templates/hello/base.html:49 templates/hello/tweets.html:14
+#: templates/hello/tweets.html:18
 msgid "絵師検索"
 msgstr "Artist search"
 
-#: templates/hello/author.html:15
+#: templates/hello/author.html:15 templates/hello/tweets.html:15
 #, python-format
 msgid ""
 "@%(screen_name)sの情報を取得できませんでした。アカウントが存在しない可能性が"
@@ -49,10 +51,11 @@ msgstr ""
 "exist."
 
 #: templates/hello/author.html:16 templates/hello/author.html:20
+#: templates/hello/tweets.html:16 templates/hello/tweets.html:20
 msgid "検索画面に戻る"
 msgstr "Back to search"
 
-#: templates/hello/author.html:19
+#: templates/hello/author.html:19 templates/hello/tweets.html:19
 #, python-format
 msgid "@%(screen_name)sは非公開アカウントです。"
 msgstr "@%(screen_name)s is private."
@@ -62,36 +65,44 @@ msgstr "@%(screen_name)s is private."
 msgid "登録イラスト数: %(count)s枚"
 msgstr "Registered illustrations: %(count)s"
 
-#: templates/hello/author.html:36
-msgid "現在データ取得中です。しばらくしてから再表示してみてください。"
+#: templates/hello/author.html:49 templates/hello/tweets.html:49
+msgid "登録済みの画像"
 msgstr ""
-"The information of this illustration is in preparation. Please visit again "
-"later."
 
-#: templates/hello/author.html:41 templates/hello/search.html:30
+#: templates/hello/author.html:52 templates/hello/tweets.html:52
+msgid "最近の画像ツイート(&beta;)"
+msgstr ""
+
+#: templates/hello/author.html:57 templates/hello/search.html:42
 msgid "いいね数が多い順"
 msgstr "Order by number of likes"
 
-#: templates/hello/author.html:42 templates/hello/search.html:31
+#: templates/hello/author.html:58 templates/hello/search.html:43
 msgid "投稿日時が新しい順"
 msgstr "Order by posted date"
 
-#: templates/hello/author.html:43 templates/hello/search.html:32
+#: templates/hello/author.html:59 templates/hello/search.html:44
 msgid "データベース登録が新しい順"
 msgstr "Order by registered date"
 
-#: templates/hello/author.html:53 templates/hello/ranking.html:24
-#: templates/hello/search.html:42
+#: templates/hello/author.html:69 templates/hello/ranking.html:34
+#: templates/hello/search.html:54
 msgid "NSFW画像を表示する"
 msgstr "Show NSFW illustrations"
 
-#: templates/hello/author.html:68 templates/hello/ranking.html:39
-#: templates/hello/search.html:57
+#: templates/hello/author.html:77
+#, fuzzy
+#| msgid "全てのイラスト"
+msgid "イラスト"
+msgstr "All illustrations"
+
+#: templates/hello/author.html:84 templates/hello/ranking.html:49
+#: templates/hello/search.html:69
 msgid "&lt;&lt; 前のページ"
 msgstr "&lt;&lt; Previous page"
 
-#: templates/hello/author.html:71 templates/hello/ranking.html:42
-#: templates/hello/search.html:60
+#: templates/hello/author.html:87 templates/hello/ranking.html:52
+#: templates/hello/search.html:72
 msgid "次のページ &gt;&gt;"
 msgstr "Next page &gt;&gt;"
 
@@ -103,15 +114,15 @@ msgstr "Screen name of the artist"
 msgid "@を除いて入力してください（例: @kamieshi→kamieshi）"
 msgstr "Don't include @ of the screen name. (e.g. @artist -> artist)"
 
-#: templates/hello/author_search.html:16 templates/hello/index.html:27
+#: templates/hello/author_search.html:16 templates/hello/index.html:31
 msgid "検索"
 msgstr "Search"
 
-#: templates/hello/author_search.html:19
+#: templates/hello/author_search.html:31
 msgid "登録画像数が多い人"
 msgstr "Artists ordered by the number of registered illustrations"
 
-#: templates/hello/author_search.html:22
+#: templates/hello/author_search.html:34
 msgid "枚"
 msgstr " "
 
@@ -124,8 +135,9 @@ msgstr "Let's find illustrations posted on Twitter."
 msgid "全てのイラスト"
 msgstr "All illustrations"
 
-#: templates/hello/base.html:48 templates/hello/index.html:66
-#: templates/hello/ranking.html:4 templates/hello/ranking.html:10
+#: templates/hello/base.html:48 templates/hello/index.html:82
+#: templates/hello/index.html:88 templates/hello/ranking.html:4
+#: templates/hello/ranking.html:10
 msgid "デイリーランキング"
 msgstr "Daily ranking"
 
@@ -134,8 +146,8 @@ msgid "ラベルの修正"
 msgstr "Fix label"
 
 #: templates/hello/index.html:13
-msgid "検索キーワードまたはタグを入力"
-msgstr "Enter keyword or tag"
+msgid "検索クエリを入力"
+msgstr ""
 
 #: templates/hello/index.html:18
 msgid "キーワード検索"
@@ -145,27 +157,31 @@ msgstr "Keyword search"
 msgid "タグ検索"
 msgstr "Tag search"
 
-#: templates/hello/index.html:30
+#: templates/hello/index.html:26
+msgid "Tweet ID検索"
+msgstr ""
+
+#: templates/hello/index.html:34
 msgid "登録数の多いタグ"
 msgstr "Most registered tags"
 
-#: templates/hello/index.html:36
+#: templates/hello/index.html:52 templates/hello/index.html:58
 msgid "新しく投稿されたイラスト"
 msgstr "Newly posted illutrations"
 
-#: templates/hello/index.html:48
+#: templates/hello/index.html:64
 msgid "新しく投稿されたイラストをもっと見る"
 msgstr "See more newly posted illustrations"
 
-#: templates/hello/index.html:51
+#: templates/hello/index.html:67 templates/hello/index.html:73
 msgid "新しく登録されたイラスト"
 msgstr "Newly registered illustrations"
 
-#: templates/hello/index.html:63
+#: templates/hello/index.html:79
 msgid "新しく登録されたイラストをもっと見る"
 msgstr "See more newly registered illustrations"
 
-#: templates/hello/index.html:78
+#: templates/hello/index.html:94
 msgid "デイリーランキングをもっと見る"
 msgstr "See more daily ranking"
 
@@ -180,6 +196,12 @@ msgid ""
 "クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあ"
 "ります。"
 msgstr "The number of likes may not be up-to-date."
+
+#: templates/hello/ranking.html:42
+#, fuzzy
+#| msgid "デイリーランキング"
+msgid "ランキング画像"
+msgstr "Daily ranking"
 
 #: templates/hello/search.html:4
 #, python-format
@@ -217,28 +239,34 @@ msgstr "Registered illustrations: %(count)s"
 msgid "条件を満たす画像は見つかりませんでした"
 msgstr "No illustration found"
 
+#: templates/hello/search.html:62
+#, fuzzy
+#| msgid "検索結果: %(count)s件"
+msgid "検索結果"
+msgstr "Number of results: %(count)s"
+
 #: templates/hello/status.html:4 templates/hello/status.html:9
 msgid "ツイート詳細"
 msgstr "Tweet details"
 
-#: templates/hello/status.html:41
+#: templates/hello/status.html:47
 #, python-format
 msgid "@%(screen_name)sさんのイラストをもっと見る"
 msgstr "See more illustrations by @%(screen_name)s"
 
-#: templates/hello/status.html:44
+#: templates/hello/status.html:63
 msgid "このツイートがイラストを含まない場合は報告してください"
 msgstr "If this tweet does not include any illustrations, please report it."
 
-#: templates/hello/status.html:45
+#: templates/hello/status.html:64
 msgid "報告する"
 msgstr "Report"
 
-#: templates/hello/status.html:47
+#: templates/hello/status.html:66
 msgid "タグについて"
 msgstr "About tags"
 
-#: templates/hello/status.html:49
+#: templates/hello/status.html:68
 msgid ""
 "<span class=\"badge badge-info\">水色のタグ</span> はツイートに含まれるハッ"
 "シュタグを表します。"
@@ -246,7 +274,7 @@ msgstr ""
 "<span class=\"badge badge-info\">Blue tags</span> mean hashtags included in "
 "the tweet."
 
-#: templates/hello/status.html:50
+#: templates/hello/status.html:69
 msgid ""
 "<span class=\"badge badge-secondary\">灰色のタグ</span> はIllustration2Vecを"
 "用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある"
@@ -255,17 +283,33 @@ msgstr ""
 "<span class=\"badge badge-secondary\">gray tags</span> mean tags estimated "
 "by Illustration2Vec. Each line corresponds to each image."
 
-#: templates/hello/status.html:59
+#: templates/hello/status.html:78
 msgid "このツイートを報告しますか？"
 msgstr "Do you want to report this tweet?"
 
-#: templates/hello/status.html:65
+#: templates/hello/status.html:84
 msgid "報告が完了しました。ご協力ありがとうございます。"
 msgstr "Report completed. Thank you for your cooperation."
 
-#: templates/hello/status.html:68
+#: templates/hello/status.html:87
 msgid "報告に失敗しました。"
 msgstr "Report failed."
+
+#: templates/hello/tweets.html:61
+msgid "登録済み"
+msgstr "Already registered"
+
+#: templates/hello/tweets.html:63
+msgid "登録する"
+msgstr "Register"
+
+#~ msgid "現在データ取得中です。しばらくしてから再表示してみてください。"
+#~ msgstr ""
+#~ "The information of this illustration is in preparation. Please visit "
+#~ "again later."
+
+#~ msgid "検索キーワードまたはタグを入力"
+#~ msgstr "Enter keyword or tag"
 
 #~ msgid "広告"
 #~ msgstr "Advertisement"

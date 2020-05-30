@@ -19,6 +19,7 @@
     <p>{% blocktrans %}@{{ screen_name }}は非公開アカウントです。{% endblocktrans %}</p>
     <a href="{% url 'author' %}" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% else %}
+
     <div class="row my-4 justify-content-center">
       <div class="col-3 col-lg-2">
         <a href="https://twitter.com/{{ screen_name }}">
@@ -31,7 +32,6 @@
       <div class="w-100"></div>
       <div class="col text-center text-secondary">@{{ screen_name }}</div>
     </div>
-    <p>{% blocktrans %}登録イラスト数: {{ count }}枚{% endblocktrans %}</p>
     <div class="my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"
@@ -46,46 +46,25 @@
     </div>
     <ul class="nav nav-tabs justify-content-center mb-4">
       <li class="nav-item">
-        <a class="nav-link active" href="{% url 'author' screen_name %}">{% trans "登録済みの画像" %}</a>
+        <a class="nav-link" href="{% url 'author' screen_name %}">{% trans "登録済みの画像" %}</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'tweets' screen_name %}">{% trans "最近の画像ツイート(&beta;)" %}</a>
+        <a class="nav-link active" href="{% url 'tweets' screen_name %}">{% trans "最近の画像ツイート(&beta;)" %}</a>
       </li>
     </ul>
-    <div class="form-group">
-      <select class="form-control" id="order">
-        <option value="like">{% trans "いいね数が多い順" %}</option>
-        <option value="created_at">{% trans "投稿日時が新しい順" %}</option>
-        <option value="id">{% trans "データベース登録が新しい順" %}</option>
-      </select>
-    </div>
-    <div class="mb-3">
-      <div class="form-check">
-        {% if safe %}
-        <input type="checkbox" class="form-check-input" id="show_nsfw"> 
-        {% else %}
-        <input type="checkbox" class="form-check-input" id="show_nsfw" checked>
-        {% endif %}
-        <label class="form-check-label" for="show_nsfw">{% trans "NSFW画像を表示する"%}</label>
+    <div class="container">
+      <div class="row">
+        {% for tweet in tweet_list %}
+        <div class="col-12 col-md-6 col-lg-4 mb-5 text-center">
+          <blockquote class="twitter-tweet" data-conversation="none"><a href="https://twitter.com/user/status/{{ tweet.tweetId }}"></a></blockquote>
+          {% if tweet.registered %}
+          <span class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>
+          {% else %}
+          <a href="{% url 'status' tweet.tweetId %}" class="mt-3 btn btn-success">{% trans "登録する" %}</a>
+          {% endif %}
+        </div>
+        {% endfor %}
       </div>
-    </div>
-    <div id="images" class="grid">
-      <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
-      {% for entry in image_entry_list %}
-          <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-            <a href="{% url 'status' entry.status_id %}">
-              <img src="{{entry.media_url}}" alt={% trans "イラスト" %}>
-            </a>
-          </div>
-      {% endfor %}
-    </div>
-    <div class="clearfix mt-4">
-      {% if previous_page %}
-      <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</a>
-      {% endif %}
-      {% if next_page %}
-      <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</a>
-      {% endif %}
     </div>
     {% endif %}
   </div>
@@ -93,6 +72,7 @@
 {% endblock %}
 
 {% block script %}
+<script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
 <script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
 <script>
