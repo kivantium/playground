@@ -10,7 +10,7 @@
       <h2 class="h4">{% trans "デイリーランキング" %}</h2>
       <p>{% trans "直近24時間に投稿された収集画像をいいね数順に表示しています。" %}{% trans "クロール時のいいね数を使っているため、最新のいいね数を反映していないことがあります。" %}</p>
     </div>
-    <div class="my-5">
+    <div class="d-none d-md-block my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"
            style="display:block; text-align:center;"
@@ -70,7 +70,7 @@
   $grid.imagesLoaded().progress(function() {
     $grid.masonry('layout');
   });
-  $('#show_nsfw').change(function() {
+  $('#check_nsfw').change(function() {
     location.href = "{{ checked_page|safe }}";
   });
 </script>

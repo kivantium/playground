@@ -52,7 +52,7 @@ def index(request):
     image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:12]
     new_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-created_at')[:12]
     now = datetime.datetime.now(pytz.timezone('UTC'))
-    td = datetime.timedelta(hours=24)
+    td = datetime.timedelta(hours=33)
     start = now - td
     popular_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, created_at__range=(start, now), image_number=0).order_by('-like_count')[:12]
     return render(request, 'hello/index.html', {
