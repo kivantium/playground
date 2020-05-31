@@ -19,7 +19,6 @@
     <p>{% blocktrans %}@{{ screen_name }}は非公開アカウントです。{% endblocktrans %}</p>
     <a href="{% url 'author' %}" class="btn btn-primary">{% trans "検索画面に戻る" %}</a>
     {% else %}
-
     <div class="row my-4 justify-content-center">
       <div class="col-3 col-lg-2">
         <a href="https://twitter.com/{{ screen_name }}">
@@ -52,6 +51,13 @@
         <a class="nav-link active" href="{% url 'tweets' screen_name %}">{% trans "最近の画像ツイート(&beta;)" %}</a>
       </li>
     </ul>
+    {% if request.user.is_authenticated %}
+    <div id="tweets" class="row"></div>
+    <div class="text-center">
+      <p id="page_number"></p>
+    <button type="button" id="ajax_next" class="btn btn-primary">次のページ</button>
+    </div>
+    {% else %}
     <div class="container">
       <div class="row">
         {% for tweet in tweet_list %}
@@ -65,7 +71,14 @@
         </div>
         {% endfor %}
       </div>
+      <div class="text-center">
+      <p>{% trans "もっと見るにはログインが必要です" %}</p>
+      <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+        <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+      </button>
+      </div>
     </div>
+    {% endif %}
     {% endif %}
   </div>
 </section>
@@ -73,39 +86,43 @@
 
 {% block script %}
 <script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+{% if request.user.is_authenticated %}
 <script>
+  function loadNextPage() {
+    $.ajax({
+      'url': "{% url 'ajax_tweets' screen_name %}?page="+String(next_page),
+      'type': 'GET',
+    }).done( (res) => {
+      if(res.status == 'OK') {
+      res.tweet_list.forEach(tweet => {
+        var col = '<div class="col-12 col-md-6 col-lg-4 mb-5 text-center">\n'
+        col += '<blockquote class="twitter-tweet" data-conversation="none">'
+        col += '<a href="https://twitter.com/user/status/'+ tweet.id_str + '"></a></blockquote>\n';
+        if(tweet.registered) {
+          col += '<span class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>';
+        } else {
+          col += '<a href="/status/' + tweet.id_str + '/" target="_blank" class="mt-3 btn btn-success">{% trans "登録する" %}</a>'
+        }
+        col += '</div>'
+        $('#tweets').append(col);
+      });
+      twttr.widgets.load(); 
+      $('#page_number').text(String(next_page)+'ページ')
+      next_page += 1;
+      } else {
+        $('#page_number').text('読み込みに失敗しました: ' + res.status)
+      }
+    });
+  }
+
   $(function() {
-    {% if order == 'like' %}
-      $('#order').val('like');
-    {% elif order == 'created_at' %}
-      $('#order').val('created_at');
-    {% else %}
-      $('#order').val('id');
-    {% endif %}
+    next_page = 1;
+    loadNextPage();
   });
-  $('#order').change(function() {
-    const order = $('#order').val();
-    if(order == "like") {
-      location.href = "{{ like_order_page|safe }}";
-    } else if(order == "created_at") {
-      location.href = "{{ created_at_order_page|safe }}";
-    } else {
-      location.href = "{{ id_order_page|safe }}";
-    }
-  });
-  $('#show_nsfw').change(function() {
-    location.href = "{{ checked_page|safe }}";
-  });
-  var $grid = $('.grid').masonry({
-    itemSelector: '.grid-item',
-    columnWidth: '.grid-sizer',
-    percentPosition: true,
-    transitionDuration: 0
-  });
-  $grid.imagesLoaded().progress(function() {
-    $grid.masonry('layout');
+
+  $('#ajax_next').click(function() {
+    loadNextPage();
   });
 </script>
+{% endif %}
 {% endblock %}

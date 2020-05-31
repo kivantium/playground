@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from social_django.models import UserSocialAuth
 from django.conf import settings
 from django.utils import translation
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.db.models import Count
 from django.utils.timezone import make_aware
 
@@ -202,6 +202,45 @@ def scrape_author(screen_name):
         finally:
             fcntl.flock(f.fileno(), fcntl.LOCK_UN)
 
+def ajax_tweets(request, screen_name):
+    page = request.GET.get('page', default='1')
+    page = int(page)
+    try:
+        user = UserSocialAuth.objects.get(user_id=request.user.id)
+    except:
+        d = { 'status': 'Authentication Error', }
+        return JsonResponse(d)
+    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
+    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
+    access_token = user.extra_data['access_token']['oauth_token']
+    access_secret = user.extra_data['access_token']['oauth_token_secret']
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth)
+    tweet_list = []
+    try:
+        for status in api.user_timeline(screen_name, count=200, page=page):
+            if hasattr(status, "retweeted_status"):
+                continue
+            if 'media' not in status.entities:
+                continue
+            entries = ImageEntry.objects.filter(status_id=status.id)
+            if entries:
+                registered = True
+            else:
+                registered = False
+            tweet_list.append({"id_str": status.id_str, "registered": registered})
+
+        d = {
+            'status': 'OK',
+            'tweet_list': tweet_list,
+        }
+        return JsonResponse(d)
+    except:
+        d = { 'status': 'Reached API Limit?', }
+        return JsonResponse(d)
+
+
 def tweets(request, screen_name):
     try:
         profile = Profile(screen_name)
@@ -220,25 +259,33 @@ def tweets(request, screen_name):
             'isPrivate': True,
             'screen_name': screen_name})
 
-    tweets = get_tweets(screen_name, pages=3)
-    tweet_list = []
-    for tweet in tweets:
-        if tweet['isRetweet']:
-            continue
-        if tweet['entries']['photos']:
-            entries = ImageEntry.objects.filter(status_id=tweet['tweetId'])
-            if entries:
-                registered = True
-            else:
-                registered = False
-            tweet_list.append({"registered": registered, "tweetId": tweet['tweetId']})
+    if request.user.is_authenticated:
+        return render(request, 'hello/tweets.html', {
+            'notFound': False,
+            'screen_name': screen_name,
+            'name': name,
+            'profile_photo': profile_photo})
 
-    return render(request, 'hello/tweets.html', {
-        'notFound': False,
-        'screen_name': screen_name,
-        'name': name,
-        'profile_photo': profile_photo,
-        'tweet_list': tweet_list})
+    else:
+        tweets = get_tweets(screen_name, pages=2)
+        tweet_list = []
+        for tweet in tweets:
+            if tweet['isRetweet']:
+                continue
+            if tweet['entries']['photos']:
+                entries = ImageEntry.objects.filter(status_id=tweet['tweetId'])
+                if entries:
+                    registered = True
+                else:
+                    registered = False
+                tweet_list.append({"registered": registered, "tweetId": tweet['tweetId']})
+
+        return render(request, 'hello/tweets.html', {
+            'notFound': False,
+            'screen_name': screen_name,
+            'name': name,
+            'profile_photo': profile_photo,
+            'tweet_list': tweet_list})
 
 def report(request, status_id):
     forwarded_addresses = request.META.get('HTTP_X_FORWARDED_FOR')
@@ -609,6 +656,23 @@ def register(request, status_id):
 def register_status(url):
     urllib.request.urlopen(url).read()
 
+def update_like_count(image_entry_list):
+    status_id = image_entry_list[0].status_id
+    session = HTMLSession()
+    headers = { "X-Requested-With": "XMLHttpRequest", }
+    url = 'https://twitter.com/i/web/status/{}'.format(status_id)
+    try:
+        r = session.get(url, headers=headers)
+        a = r.html.find('#profile-tweet-action-favorite-count-aria-{}'.format(status_id), first=True)
+        b = a.element.getparent()
+        like_count = int(b.get('data-tweet-stat-count'))
+        if like_count > image_entry_list[0].like_count:
+            for entry in image_entry_list:
+                entry.like_count = like_count
+                entry.save()
+    except:
+        pass
+
 def status(request, status_id):
     image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
                                          .order_by('image_number')
@@ -620,24 +684,9 @@ def status(request, status_id):
             'title': 'ツイート詳細 - にじさーち',
             'status_id': status_id,
             'screen_name': 'unknown'})
-    else: # Update like count
-        session = HTMLSession()
-        headers = { "X-Requested-With": "XMLHttpRequest", }
-        status_id = image_entry_list[0].status_id
-        url = 'https://twitter.com/i/web/status/{}'.format(status_id)
-        try:
-            r = session.get(url, headers=headers)
-
-            a = r.html.find('#profile-tweet-action-favorite-count-aria-{}'.format(status_id), first=True)
-            b = a.element.getparent()
-            like_count = int(b.get('data-tweet-stat-count'))
-
-            if like_count > image_entry_list[0].like_count:
-                for entry in image_entry_list:
-                    entry.like_count = like_count
-                    entry.save()
-        except:
-            pass
+    else:
+        t = threading.Thread(target=update_like_count, args=(image_entry_list, ))
+        t.start();
         hashtags = []
         i2vtags_list = []
         is_illust = []

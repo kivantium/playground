@@ -8,6 +8,7 @@ urlpatterns = [
     path('about/', views.about, name='about'),
     path('author/', views.author_search, name='author_search'),
     path('author/<str:screen_name>/', views.author, name='author'),
+    path('ajax_tweets/<str:screen_name>/', views.ajax_tweets, name='ajax_tweets'),
     path('tweets/<str:screen_name>/', views.tweets, name='tweets'),
     path('fix/', views.fix, name='fix'),
     path('ranking/', views.ranking, name='ranking'),
