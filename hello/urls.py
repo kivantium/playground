@@ -19,6 +19,8 @@ urlpatterns = [
     path('report/<int:status_id>/', views.report, name='report'),
     path('set_i2v_tag/<int:status_id>/', views.set_i2v_tag, name='set_i2v_tag'),
     path('search/', views.search, name='search'),
+    path('ajax_search_tweets/', views.ajax_search_tweets, name='ajax_search_tweets'),
+    path('search_tweets/', views.search_tweets, name='search_tweets'),
     path('logout/',
         django.contrib.auth.views.LogoutView.as_view(template_name = 'hello/logout.html'),
         name='logout'),

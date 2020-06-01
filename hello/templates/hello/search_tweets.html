@@ -1,0 +1,89 @@
+{% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}{{ tag_name }}{% trans "のイラスト検索結果" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
+
+{% block meta %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container mt-5">
+    <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-info">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+    <div class="d-none d-md-block my-5">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="horizontal"
+           data-ad-client="ca-pub-2828660212063348"
+           data-ad-slot="4211442369"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+    <ul class="nav nav-tabs justify-content-center mb-4">
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'search' %}?tag={{ tag_name }}">{% trans "登録済みの画像" %}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link active">{% trans "最近の画像ツイート(&beta;)" %}</a>
+      </li>
+    </ul>
+    {% if request.user.is_authenticated %}
+    <div id="tweets" class="row"></div>
+    <div class="text-center">
+      <p id="info">100いいね以上のツイートのみを表示しています</p>
+    </div>
+    {% else %}
+    <div class="container">
+      <div class="text-center">
+      <p>{% trans "この機能を利用するにはログインが必要です" %}</p>
+      <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+        <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+      </button>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+{% if request.user.is_authenticated %}
+<script>
+  function loadNextPage() {
+    $.ajax({
+      'url': "{% url 'ajax_search_tweets' %}?tag={{ tag_name }}",
+      'type': 'GET',
+    }).done( (res) => {
+      if(res.status == 'OK') {
+        console.log(res.tweet_list);
+        res.tweet_list.forEach(tweet => {
+          var col = '<div class="col-12 col-md-6 col-lg-4 mb-5 text-center">\n'
+          col += '<blockquote class="twitter-tweet" data-conversation="none">'
+          col += '<a href="https://twitter.com/user/status/'+ tweet.id_str + '"></a></blockquote>\n';
+          if(tweet.registered) {
+            col += '<span class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>';
+          } else {
+            col += '<a href="/status/' + tweet.id_str + '/" target="_blank" class="mt-3 btn btn-success">{% trans "登録する" %}</a>'
+          }
+          col += '</div>'
+          $('#tweets').append(col);
+        });
+        twttr.widgets.load(); 
+      } else {
+        $('#info').text('読み込みに失敗しました: ' + res.status)
+      }
+    });
+  }
+
+  $(function() {
+    loadNextPage();
+  });
+
+</script>
+{% endif %}
+{% endblock %}

@@ -9,7 +9,11 @@
     <div class="container mt-5">
       {% if tag_name or text %}
       {% if tag_name %}
+      {% if tag_type == 'HS' %}
+      <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-info">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+      {% else %}
       <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-secondary">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+      {% endif %}
       {% else %}
       <h2 class="h4 mb-3">{% blocktrans %}<span class="font-weight-bold">{{ text }}</span> のイラスト検索結果{% endblocktrans %}</h2>
       {% endif %}
@@ -35,7 +39,19 @@
         (adsbygoogle = window.adsbygoogle || []).push({});
       </script>
     </div>
+
+    {% if tag_name and tag_type == 'HS' %}
+    <ul class="nav nav-tabs justify-content-center mb-4">
+      <li class="nav-item">
+        <a class="nav-link active">{% trans "登録済みの画像" %}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'search_tweets' %}?tag={{ tag_name }}">{% trans "最近の画像ツイート(&beta;)" %}</a>
+      </li>
+    </ul>
+    {% else %}
     <hr>
+    {% endif %}
     <div class="container">
       <div class="form-group">
         <select class="form-control" id="order">

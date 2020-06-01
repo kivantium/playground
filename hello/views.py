@@ -406,6 +406,7 @@ def search(request):
     text = request.GET.get('text')
 
     n = 50
+    tag_type = None
     if tag_name is None and text is None:
         image_entry_list = ImageEntry.objects.filter(is_illust=True)
         count = ImageEntry.objects.filter(is_illust=True).count()
@@ -417,6 +418,7 @@ def search(request):
                 'tag_name': tag_name, 'notFound': True, 'count': 0})
         image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t)
         count = image_entry_list.count()
+        tag_type = t.tag_type
         if count == 0:
             return render(request, 'hello/search.html', {
                 'text': text, 'notFound': True, 'count': 0})
@@ -470,6 +472,7 @@ def search(request):
 
     return render(request, 'hello/search.html', {
         'tag_name': tag_name,
+        'tag_type': tag_type,
         'text': text,
         'count': count,
         'order': order,
@@ -481,6 +484,50 @@ def search(request):
         'id_order_page': id_order_page,
         'previous_page': previous_page,
         'next_page': next_page})
+
+def ajax_search_tweets(request):
+    tag_name = request.GET.get('tag', default='')
+    try:
+        user = UserSocialAuth.objects.get(user_id=request.user.id)
+    except:
+        d = { 'status': 'Authentication Error', }
+        return JsonResponse(d)
+    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
+    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
+    access_token = user.extra_data['access_token']['oauth_token']
+    access_secret = user.extra_data['access_token']['oauth_token_secret']
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth)
+    tweet_list = []
+    q = "#{} filter:images exclude:retweets min_faves:100".format(tag_name)
+    try:
+        for status in api.search(q, count=200):
+            if hasattr(status, "retweeted_status"):
+                status = status.retweeted_status
+            if 'media' not in status.entities:
+                continue
+            entries = ImageEntry.objects.filter(status_id=status.id)
+            if entries:
+                registered = True
+            else:
+                registered = False
+            tweet_list.append({"id_str": str(status.id), "registered": registered})
+
+        d = {
+            'status': 'OK',
+            'tweet_list': tweet_list,
+        }
+        return JsonResponse(d)
+    except:
+        print(traceback.format_exc())
+        d = { 'status': 'Reached API Limit?', }
+        return JsonResponse(d)
+
+def search_tweets(request):
+    tag_name = request.GET.get('tag')
+    return render(request, 'hello/search_tweets.html', {
+        'tag_name': tag_name})
 
 illust2vec = i2v.make_i2v_with_onnx(
         os.path.join(os.path.dirname(__file__), "illust2vec_tag_ver200.onnx"),
