@@ -1,5 +1,6 @@
 from django.urls import path, include
 import django.contrib.auth.views
+from django.views.generic import TemplateView
 
 from . import views
 
@@ -25,4 +26,6 @@ urlpatterns = [
         django.contrib.auth.views.LogoutView.as_view(template_name = 'hello/logout.html'),
         name='logout'),
     path('i18n/', include('django.conf.urls.i18n')),
+   path('sw.js', (TemplateView.as_view(template_name="hello/sw.js",
+    content_type='application/javascript', )), name='sw.js'),
 ]

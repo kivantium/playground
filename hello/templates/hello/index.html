@@ -3,6 +3,11 @@
 
 {% block page_title%}{% block twitter_title %}{% block og_title %}{% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
+{% block meta %}
+<link rel="manifest" href="/static/hello/manifest.json">
+{% endblock %}
+
+
 {% block content %}
 <section class="section">
   <div id="app">
@@ -124,5 +129,11 @@
     }
     return false;
   })
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(function() {
+      console.log('Service Worker Registered'); });
+  }
 </script>
 {% endblock %}
