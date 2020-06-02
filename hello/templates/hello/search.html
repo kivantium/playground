@@ -26,7 +26,6 @@
       <p>{% trans "条件を満たす画像は見つかりませんでした" %}</p>
       {% endif %}
     </div>
-    {% if not notFound %}
     <div class="d-none d-md-block my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"
@@ -49,9 +48,19 @@
         <a class="nav-link" href="{% url 'search_tweets' %}?tag={{ tag_name }}">{% trans "最近の画像ツイート(&beta;)" %}</a>
       </li>
     </ul>
+    {% elif text %}
+    <ul class="nav nav-tabs justify-content-center mb-4">
+      <li class="nav-item">
+        <a class="nav-link active">{% trans "登録済みの画像" %}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'search_tweets' %}?text={{ text }}">{% trans "最近の画像ツイート(&beta;)" %}</a>
+      </li>
+    </ul>
     {% else %}
     <hr>
     {% endif %}
+    {% if not notFound %}
     <div class="container">
       <div class="form-group">
         <select class="form-control" id="order">

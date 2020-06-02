@@ -10,7 +10,11 @@
 {% block content %}
 <section class="section">
   <div class="container mt-5">
+    {% if tag_name %}
     <h2 class="h4 mb-3">{% blocktrans %}<span class="badge badge-info">{{tag_name}}</span> のイラスト検索結果{% endblocktrans %}</h2>
+    {% else %}
+    <h2 class="h4 mb-3">{% blocktrans %}<span class="font-weight-bold">{{ text }}</span> のイラスト検索結果{% endblocktrans %}</h2>
+    {% endif %}
     <div class="d-none d-md-block my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"
@@ -34,7 +38,11 @@
     {% if request.user.is_authenticated %}
     <div id="tweets" class="row"></div>
     <div class="text-center">
+    {% if tag_name %}
       <p id="info">100いいね以上のツイートのみを表示しています</p>
+    {% else %}
+      <p id="info">10いいね以上のツイートのみを表示しています</p>
+    {% endif %}
     </div>
     {% else %}
     <div class="container">
@@ -55,8 +63,13 @@
 {% if request.user.is_authenticated %}
 <script>
   function loadNextPage() {
+    {% if tag_name %}
+    var url = "{% url 'ajax_search_tweets' %}?tag={{ tag_name }}"; 
+    {% else %}
+    var url = "{% url 'ajax_search_tweets' %}?text={{ text }}"; 
+    {% endif %}
     $.ajax({
-      'url': "{% url 'ajax_search_tweets' %}?tag={{ tag_name }}",
+      'url': url,
       'type': 'GET',
     }).done( (res) => {
       if(res.status == 'OK') {

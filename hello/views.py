@@ -486,7 +486,8 @@ def search(request):
         'next_page': next_page})
 
 def ajax_search_tweets(request):
-    tag_name = request.GET.get('tag', default='')
+    tag_name = request.GET.get('tag')
+    text = request.GET.get('text', default='')
     try:
         user = UserSocialAuth.objects.get(user_id=request.user.id)
     except:
@@ -500,7 +501,10 @@ def ajax_search_tweets(request):
     auth.set_access_token(access_token, access_secret)
     api = tweepy.API(auth)
     tweet_list = []
-    q = "#{} filter:images exclude:retweets min_faves:100".format(tag_name)
+    if tag_name:
+        q = "#{} filter:images exclude:retweets min_faves:100".format(tag_name)
+    else:
+        q = "{} filter:images exclude:retweets min_faves:10".format(text)
     try:
         for status in api.search(q, count=200):
             if hasattr(status, "retweeted_status"):
@@ -526,8 +530,14 @@ def ajax_search_tweets(request):
 
 def search_tweets(request):
     tag_name = request.GET.get('tag')
-    return render(request, 'hello/search_tweets.html', {
-        'tag_name': tag_name})
+    text = request.GET.get('text', default='')
+
+    if tag_name:
+        return render(request, 'hello/search_tweets.html', {
+            'tag_name': tag_name})
+    else:
+        return render(request, 'hello/search_tweets.html', {
+            'text': text})
 
 illust2vec = i2v.make_i2v_with_onnx(
         os.path.join(os.path.dirname(__file__), "illust2vec_tag_ver200.onnx"),
