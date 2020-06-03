@@ -14,6 +14,7 @@ urlpatterns = [
     path('fix/', views.fix, name='fix'),
     path('ranking/', views.ranking, name='ranking'),
     path('status/<int:status_id>/', views.status, name='status'),
+    path('add_tag/<int:status_id>/', views.add_tag, name='add_tag'),
     path('register/<int:status_id>/', views.register, name='register'),
     path('add/<int:status_id>/', views.add, name='add'),
     path('delete/<int:status_id>/', views.delete, name='delete'),

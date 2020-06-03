@@ -748,6 +748,7 @@ def status(request, status_id):
         t = threading.Thread(target=update_like_count, args=(image_entry_list, ))
         t.start();
         hashtags = []
+        usertags = []
         i2vtags_list = []
         is_illust = []
         for image_entry in image_entry_list:
@@ -758,6 +759,8 @@ def status(request, status_id):
             for tag in tags:
                 if tag.tag_type == 'HS':
                     hashtags.append(tag)
+                elif tag.tag_type == 'UR':
+                    usertags.append(tag)
                 elif tag.tag_type == 'IV':
                     if tag.name in ['safe', 'questionable', 'explicit']:
                         rating = tag
@@ -769,10 +772,54 @@ def status(request, status_id):
             i2vtags_list.append(i2vtags)
         hashtags = list(set(hashtags))
         hashtags = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtags]
+        usertags = [{"name": t.name, "name_escape": quote(t.name)} for t in usertags]
+
+        all_usertags = Tag.objects.filter(tag_type='UR')
+
         return render(request, 'hello/status.html', {
             'title': 'ツイート詳細 - にじさーち',
             'status_id': status_id,
             'screen_name': image_entry_list[0].author_screen_name,
             'hashtags': hashtags, 
+            'usertags': usertags, 
+            'all_usertags': all_usertags, 
             'i2vtags_list': i2vtags_list, 
             'is_illust': is_illust})
+
+def add_tag(request, status_id):
+    if request.method == 'POST':
+        forwarded_addresses = request.META.get('HTTP_X_FORWARDED_FOR')
+        if forwarded_addresses:
+            client_addr = forwarded_addresses.split(',')[0]
+        else:
+            client_addr = request.META.get('REMOTE_ADDR')
+
+        report_log = os.path.join(os.path.dirname(__file__), "add_tag_log.csv")
+        with open(report_log, 'a+') as f:
+            fcntl.flock(f.fileno(), fcntl.LOCK_EX)
+            try:
+                now = datetime.datetime.now(pytz.timezone('Asia/Tokyo'))
+                print('{},{},{}'.format(now.strftime('%Y-%m-%d %H:%M:%S'), 
+                    status_id, client_addr), file=f)
+            finally:
+                fcntl.flock(f.fileno(), fcntl.LOCK_UN)
+
+        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
+
+        if not image_entry_list:
+            return HttpResponse("Status {} is not registered.".format(status_id))
+
+        tag_name = request.POST['tag_name']
+        print(tag_name)
+
+        try:
+            t = Tag.objects.get(name=tag_name, tag_type='UR')
+        except:
+            t = Tag.objects.create(name=tag_name, tag_type='UR')
+
+        for entry in image_entry_list:
+            entry.tags.add(t)
+
+        return redirect('status', status_id=status_id)
+    else:
+        return HttpResponse("You must use POST to add tag status {}.".format(status_id))

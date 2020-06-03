@@ -3,6 +3,10 @@
 
 {% block page_title%}{% block twitter_title %}{% block og_title %}{% trans "ツイート詳細" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
+{% block meta %}
+<link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet"/>
+{% endblock %}
+
 {% block content %}
 <div id="app">
   <div class="container">
@@ -23,6 +27,11 @@
       <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-info">{{tag.name}}</a></li>
       {% endfor %}
     </ul>
+    <ul class="list-inline">
+      {% for tag in usertags %}
+      <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-success">{{tag.name}}</a></li>
+      {% endfor %}
+    </ul>
     <ul>
       {% for i2vtags in i2vtags_list %}
       <li>
@@ -36,6 +45,8 @@
       </li>
       {% endfor %}
     </ul>
+
+
     {% else %}
     <hr>
     <p>新しいツイートのため情報を取得中です。数秒待ってから更新してください。</p>
@@ -60,6 +71,13 @@
       </script>
     </div>
     <hr>
+    <h4 class="h6">タグを追加する</h4>
+    <form action="{% url 'add_tag' status_id %}" method="post" class="form-inline">
+      {% csrf_token %}
+      <input type="text" name="tag_name" id="tag_name" class="form-control">
+      <button type="submit" class="btn btn-primary">追加</button>
+    </form>
+    <hr>
     <p>{% trans "このツイートがイラストを含まない場合は報告してください" %}</p>
     <button type="button" id="report" class="btn btn-danger">{% trans "報告する" %}</button>
     <hr>
@@ -73,7 +91,15 @@
 {% endblock %}
 
 {% block script%}
+<script
+  src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+  integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="
+  crossorigin="anonymous"></script>
 <script>
+  $('#tag_name').autocomplete({
+    source: [{% for tag in all_usertags %}'{{ tag.name }}', {% endfor %}],
+  });
+
   function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== '') {
