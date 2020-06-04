@@ -20,8 +20,6 @@ import fcntl
 
 from urllib.parse import urlparse, quote
 import urllib.request
-from requests_html import HTMLSession
-from twitter_scraper import get_tweets, Profile
 from PIL import Image
 import traceback
 
@@ -107,21 +105,16 @@ def author(request, screen_name):
     safe = request.GET.get('safe', default='t')
     safe = True if safe == 't' else False
 
+    api = get_twitter_api()
     try:
-        profile = Profile(screen_name)
-        name = profile.name
-        profile_photo = profile.profile_photo
+        user = api.get_user(screen_name=screen_name)
+        if user.protected:
+            return render(request, 'hello/author.html', {
+                'isPrivate': True,
+                'screen_name': screen_name})
     except:
         return render(request, 'hello/author.html', {
-            'title': title,
             'notFound': True,
-            'screen_name': screen_name})
-
-    api = get_twitter_api()
-    user = api.get_user(screen_name=screen_name)
-    if user.protected:
-        return render(request, 'hello/author.html', {
-            'isPrivate': True,
             'screen_name': screen_name})
 
     filename = os.path.join(os.path.dirname(__file__), 'user_done.txt')
@@ -175,8 +168,8 @@ def author(request, screen_name):
     return render(request, 'hello/author.html', {
         'notFound': False,
         'screen_name': screen_name,
-        'name': name,
-        'profile_photo': profile_photo,
+        'name': user.name,
+        'profile_photo': user.profile_image_url_https.replace('_normal', ''),
         'isScraped': isScraped,
         'count': count,
         'order': order,
@@ -242,50 +235,24 @@ def ajax_tweets(request, screen_name):
 
 
 def tweets(request, screen_name):
+
+    api = get_twitter_api()
     try:
-        profile = Profile(screen_name)
-        name = profile.name
-        profile_photo = profile.profile_photo
+        user = api.get_user(screen_name=screen_name)
+        if user.protected:
+            return render(request, 'hello/author.html', {
+                'isPrivate': True,
+                'screen_name': screen_name})
     except:
-        return render(request, 'hello/tweets.html', {
-            'title': title,
+        return render(request, 'hello/author.html', {
             'notFound': True,
             'screen_name': screen_name})
 
-    api = get_twitter_api()
-    user = api.get_user(screen_name=screen_name)
-    if user.protected:
-        return render(request, 'hello/tweets.html', {
-            'isPrivate': True,
-            'screen_name': screen_name})
-
-    if request.user.is_authenticated:
-        return render(request, 'hello/tweets.html', {
-            'notFound': False,
-            'screen_name': screen_name,
-            'name': name,
-            'profile_photo': profile_photo})
-
-    else:
-        tweets = get_tweets(screen_name, pages=2)
-        tweet_list = []
-        for tweet in tweets:
-            if tweet['isRetweet']:
-                continue
-            if tweet['entries']['photos']:
-                entries = ImageEntry.objects.filter(status_id=tweet['tweetId'])
-                if entries:
-                    registered = True
-                else:
-                    registered = False
-                tweet_list.append({"registered": registered, "tweetId": tweet['tweetId']})
-
-        return render(request, 'hello/tweets.html', {
-            'notFound': False,
-            'screen_name': screen_name,
-            'name': name,
-            'profile_photo': profile_photo,
-            'tweet_list': tweet_list})
+    return render(request, 'hello/tweets.html', {
+        'notFound': False,
+        'screen_name': user.screen_name,
+        'name': user.name,
+        'profile_photo': user.profile_image_url_https.replace('_normal', '')})
 
 def report(request, status_id):
     if request.method == 'POST':
@@ -412,10 +379,16 @@ def search(request):
         count = ImageEntry.objects.filter(is_illust=True).count()
     elif tag_name is not None:
         try:
-            t = Tag.objects.get(name=tag_name)
+            t = Tag.objects.get(name=tag_name, tag_type='UR')
         except:
-            return render(request, 'hello/search.html', {
-                'tag_name': tag_name, 'notFound': True, 'count': 0})
+            try: 
+                t = Tag.objects.get(name=tag_name, tag_type='HS')
+            except:
+                try:
+                    t = Tag.objects.get(name=tag_name)
+                except:
+                    return render(request, 'hello/search.html', {
+                        'tag_name': tag_name, 'notFound': True, 'count': 0})
         image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=t)
         count = image_entry_list.count()
         tag_type = t.tag_type
@@ -716,22 +689,17 @@ def register(request, status_id):
 def register_status(url):
     urllib.request.urlopen(url).read()
 
-def update_like_count(image_entry_list):
-    status_id = image_entry_list[0].status_id
-    session = HTMLSession()
-    headers = { "X-Requested-With": "XMLHttpRequest", }
-    url = 'https://twitter.com/i/web/status/{}'.format(status_id)
+def update_like_count(image_entry_list, status_id):
+    api = get_twitter_api()
     try:
-        r = session.get(url, headers=headers)
-        a = r.html.find('#profile-tweet-action-favorite-count-aria-{}'.format(status_id), first=True)
-        b = a.element.getparent()
-        like_count = int(b.get('data-tweet-stat-count'))
-        if like_count > image_entry_list[0].like_count:
-            for entry in image_entry_list:
-                entry.like_count = like_count
-                entry.save()
+        status = api.get_status(status_id)
     except:
-        pass
+        return
+
+    for entry in image_entry_list:
+        entry.retweet_count=status.retweet_count
+        entry.like_count=status.favorite_count
+        entry.save()
 
 def status(request, status_id):
     image_entry_list = ImageEntry.objects.filter(status_id=status_id) \
@@ -745,7 +713,7 @@ def status(request, status_id):
             'status_id': status_id,
             'screen_name': 'unknown'})
     else:
-        t = threading.Thread(target=update_like_count, args=(image_entry_list, ))
+        t = threading.Thread(target=update_like_count, args=(image_entry_list, status_id))
         t.start();
         hashtags = []
         usertags = []
