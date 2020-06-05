@@ -29,3 +29,11 @@ class ImageEntry(models.Model):
 
     def __str__(self):
         return "{} (by @{})".format(self.media_url, self.author_screen_name)
+
+class Favorite(models.Model):
+    status_id = models.BigIntegerField()
+    user_id   = models.BigIntegerField()
+    created_at = models.DateTimeField()
+
+    def __str__(self):
+        return "{} by {}".format(self.status_id, self.user_id)

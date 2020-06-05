@@ -23,7 +23,7 @@ import urllib.request
 from PIL import Image
 import traceback
 
-from .models import Tag, ImageEntry
+from .models import Tag, ImageEntry, Favorite
 
 def crop_and_resize(img, size):
     width, height = img.size
@@ -707,14 +707,14 @@ def status(request, status_id):
     if not image_entry_list:
         url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
         t = threading.Thread(target=register_status, args=(url, ))
-        t.start();
+        t.start()
         return render(request, 'hello/status.html', {
             'title': 'ツイート詳細 - にじさーち',
             'status_id': status_id,
             'screen_name': 'unknown'})
     else:
         t = threading.Thread(target=update_like_count, args=(image_entry_list, status_id))
-        t.start();
+        t.start()
         hashtags = []
         usertags = []
         i2vtags_list = []
@@ -753,6 +753,109 @@ def status(request, status_id):
             'all_usertags': all_usertags, 
             'i2vtags_list': i2vtags_list, 
             'is_illust': is_illust})
+
+def register_favs(api):
+    user_id = api.me().id
+    for status in tweepy.Cursor(api.favorites).items():
+        if status.author.protected:
+            continue
+        if Favorite.objects.filter(status_id=status.id):
+            print('Duplicated', status.id)
+            continue
+        fav = Favorite.objects.create(
+                status_id=status.id,
+                user_id=user_id,
+                created_at=make_aware(status.created_at))
+        fav.save()
+
+def mypage(request):
+    page = request.GET.get('page', default='1')
+    page = int(page)
+
+    if not request.user.is_authenticated:
+        return render(request, 'hello/mypage.html')
+    try:
+        user = UserSocialAuth.objects.get(user_id=request.user.id)
+    except:
+        return render(request, 'hello/mypage.html', {'Error': True})
+
+    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
+    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
+    access_token = user.extra_data['access_token']['oauth_token']
+    access_secret = user.extra_data['access_token']['oauth_token_secret']
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth, wait_on_rate_limit=True)
+
+
+    favorites = Favorite.objects.filter(user_id=api.me().id).order_by('created_at')
+    if not favorites:
+        t = threading.Thread(target=register_favs, args=(api, ))
+        t.start()
+        return render(request, 'hello/mypage.html', {
+            'is_first_time': True})
+
+    fav_ids = [fav.status_id for fav in favorites]
+    image_entry_list = ImageEntry.objects.filter(status_id__in=fav_ids, image_number=0)
+
+    n = 50
+    if page > 1:
+        previous_page = request.path + '?page={}'.format(page-1)
+    else:
+        previous_page = None
+
+    if len(image_entry_list) > n * page:
+        next_page = request.path + '?page={}'.format(page+1)
+    else:
+        next_page = None
+
+    return render(request, 'hello/mypage.html', {
+        'image_entry_list': image_entry_list[n*(page-1):n*page],
+        'previous_page': previous_page,
+        'next_page': next_page})
+
+def mypage_tweets(request):
+    return render(request, 'hello/mypage_tweets.html')
+
+def ajax_mypage_tweets(request):
+    page = request.GET.get('page', default='1')
+    page = int(page)
+
+    try:
+        user = UserSocialAuth.objects.get(user_id=request.user.id)
+    except:
+        d = {'status': 'Failed'}
+        return JsonResponse(d)
+
+    consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
+    consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
+    access_token = user.extra_data['access_token']['oauth_token']
+    access_secret = user.extra_data['access_token']['oauth_token_secret']
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    api = tweepy.API(auth)
+    tweet_list = []
+    try:
+        for status in api.favorites(page=page):
+            if status.author.protected:
+                continue
+            if 'media' not in status.entities:
+                continue
+            entries = ImageEntry.objects.filter(status_id=status.id)
+            if entries:
+                registered = True
+            else:
+                registered = False
+            tweet_list.append({"id_str": status.id_str, "registered": registered})
+
+        d = {
+            'status': 'OK',
+            'tweet_list': tweet_list,
+        }
+        return JsonResponse(d)
+    except:
+        d = { 'status': 'Reached API Limit?', }
+        return JsonResponse(d)
 
 def add_tag(request, status_id):
     if request.method == 'POST':

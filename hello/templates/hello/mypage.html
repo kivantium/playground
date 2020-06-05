@@ -1,0 +1,87 @@
+{% extends 'hello/base.html' %}
+{% load i18n %}
+
+{% block page_title%}{% block twitter_title %}{% block og_title %}@{{ screen_name }}{% trans "さんのイラスト一覧" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
+
+{% block meta %}
+<meta name="robots" content="noindex">
+{% endblock %}
+
+{% block content %}
+<section class="section">
+  <div class="container mt-5">
+    {% if request.user.is_authenticated %}
+    <h2 class="h5">@{{ request.user.username }} さんのマイページ</h2>
+    {% else %}
+    <h2 class="h5">マイページ</h2>
+    {% endif %}
+    <div class="d-none d-md-block my-5">
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+      <ins class="adsbygoogle"
+           style="display:block; text-align:center;"
+           data-ad-layout="in-article"
+           data-ad-format="horizontal"
+           data-ad-client="ca-pub-2828660212063348"
+           data-ad-slot="4211442369"></ins>
+      <script>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
+    </div>
+
+    {% if not request.user.is_authenticated %}
+    <div class="container">
+      <div class="text-center">
+      <p>{% trans "この機能を利用するにはログインが必要です" %}</p>
+      <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
+        <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+      </button>
+      </div>
+    </div>
+    {% else %}
+
+    <ul class="nav nav-tabs justify-content-center mb-4">
+      <li class="nav-item">
+        <a class="nav-link active" href="{% url 'mypage' %}">{% trans "登録済みのいいね画像" %}</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'mypage_tweets' %}">{% trans "最近いいねした画像(&beta;)" %}</a>
+      </li>
+    </ul>
+    <div id="images" class="grid">
+      <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
+      {% for entry in image_entry_list %}
+          <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
+            <a href="{% url 'status' entry.status_id %}">
+              <img src="{{entry.media_url}}" alt={% trans "イラスト" %}>
+            </a>
+          </div>
+      {% endfor %}
+    </div>
+    <div class="clearfix mt-4">
+      {% if previous_page %}
+      <a href="{{ previous_page }}" class="btn btn-link float-left">{% trans "&lt;&lt; 前のページ" %}</a>
+      {% endif %}
+      {% if next_page %}
+      <a href="{{ next_page }}" class="btn btn-link float-right">{% trans "次のページ &gt;&gt;" %}</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script>
+  var $grid = $('.grid').masonry({
+    itemSelector: '.grid-item',
+    columnWidth: '.grid-sizer',
+    percentPosition: true,
+    transitionDuration: 0
+  });
+  $grid.imagesLoaded().progress(function() {
+    $grid.masonry('layout');
+  });
+</script>
+{% endblock %}

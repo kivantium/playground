@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tag, ImageEntry
+from .models import Tag, ImageEntry, Favorite
 
 # Register your models here.
 class ImageEntryAdmin(admin.ModelAdmin):
@@ -11,3 +11,4 @@ class TagAdmin(admin.ModelAdmin):
 
 admin.site.register(Tag, TagAdmin)
 admin.site.register(ImageEntry, ImageEntryAdmin)
+admin.site.register(Favorite)
