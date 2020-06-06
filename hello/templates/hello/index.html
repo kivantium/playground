@@ -36,9 +36,23 @@
           <button type="submit" class="btn btn-secondary mb-2">{% trans "検索" %}</button>
         </div>
       </form>
+      <p><a id="search_desc" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-caret-right" id="toggle-icon" aria-hidden="true"></i> 検索について</a></p>
+      <div class="collapse" id="collapseExample">
+        <dl>
+          <dt>キーワード検索</dt><dl>登録されたツイートをキーワードで全文検索します。AND検索等には対応していないので、スペースも含めてそのまま検索されます。</dl>
+          <dt>タグ検索</dt><dl>画像につけられたタグで検索します。タグにはIllustration2Vecによるタグ・ツイートに含まれるハッシュタグ・ユーザー設定タグの3種類があります。AND検索等はまだ実装していません。</dl>
+          <dt>Tweet ID検索</dt><dl>Tweet IDで検索します。IDは各ツイートのURLから分かります ( <code>https://twitter.com/username/status/XXXXXXXXXXXXXXXXXXX</code> の <code>XXXXXX</code> )<br>登録されていない画像ツイートを検索すると新しく登録されます。</dl>
+        </dt>
+      </div>
+
       <h2 class="h5 mt-5">{% trans "登録数の多いタグ" %}</h2>
       <ul class="list-inline">
-        {% for tag in tag_list %}
+        {% for tag in hashtag_list %}
+        <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-info">{{tag.name}}</a></li>
+        {% endfor %}
+      </ul>
+      <ul class="list-inline">
+        {% for tag in i2vtag_list %}
         <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-secondary">{{tag.name}}</a></li>
         {% endfor %}
       </ul>
@@ -129,6 +143,13 @@
     }
     return false;
   })
+  $('#search_desc').on("click", function(){
+    if($('#toggle-icon').hasClass("fa-caret-right")) {
+      $('#toggle-icon').toggleClass("fa fa-caret-down");
+    } else {
+      $('#toggle-icon').toggleClass("fa fa-caret-right");
+    }
+  });
 </script>
 <script>
   if ('serviceWorker' in navigator) {

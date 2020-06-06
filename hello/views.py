@@ -43,9 +43,10 @@ ort_session = onnxruntime.InferenceSession(
     os.path.join(os.path.dirname(__file__), "model.onnx"))
 
 def index(request):
-    tag_list = Tag.objects.all().annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
-    tag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in tag_list]
-    count = ImageEntry.objects.filter(is_illust=True).count()
+    i2vtag_list = Tag.objects.all().filter(tag_type='IV').annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
+    i2vtag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in i2vtag_list]
+    hashtag_list = Tag.objects.all().filter(tag_type='HS').annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:6]
+    hashtag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtag_list]
     safe_tag = Tag.objects.get(name='safe')
     image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:12]
     new_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-created_at')[:12]
@@ -54,11 +55,11 @@ def index(request):
     start = now - td
     popular_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, created_at__range=(start, now), image_number=0).order_by('-like_count')[:12]
     return render(request, 'hello/index.html', {
-        'tag_list': tag_list,
+        'hashtag_list': hashtag_list,
+        'i2vtag_list': i2vtag_list,
         'image_entry_list': image_entry_list,
         'new_image_entry_list': new_image_entry_list,
-        'popular_image_entry_list': popular_image_entry_list,
-        'count': count})
+        'popular_image_entry_list': popular_image_entry_list,})
 
 def about(request):
     return render(request, 'hello/about.html')
@@ -754,14 +755,13 @@ def status(request, status_id):
             'i2vtags_list': i2vtags_list, 
             'is_illust': is_illust})
 
-def register_favs(api):
+def register_favs(api, is_first_time):
     user_id = api.me().id
     for status in tweepy.Cursor(api.favorites).items():
         if status.author.protected:
             continue
-        if Favorite.objects.filter(status_id=status.id):
-            print('Duplicated', status.id)
-            continue
+        if not is_first_time and Favorite.objects.filter(status_id=status.id):
+            break
         fav = Favorite.objects.create(
                 status_id=status.id,
                 user_id=user_id,
@@ -788,15 +788,18 @@ def mypage(request):
     api = tweepy.API(auth, wait_on_rate_limit=True)
 
 
-    favorites = Favorite.objects.filter(user_id=api.me().id).order_by('created_at')
+    favorites = Favorite.objects.filter(user_id=api.me().id)
     if not favorites:
-        t = threading.Thread(target=register_favs, args=(api, ))
+        t = threading.Thread(target=register_favs, args=(api, True))
         t.start()
         return render(request, 'hello/mypage.html', {
             'is_first_time': True})
+    else:
+        t = threading.Thread(target=register_favs, args=(api, False))
+        t.start()
 
     fav_ids = [fav.status_id for fav in favorites]
-    image_entry_list = ImageEntry.objects.filter(status_id__in=fav_ids, image_number=0)
+    image_entry_list = ImageEntry.objects.filter(is_illust=True, status_id__in=fav_ids, image_number=0).order_by('-created_at')
 
     n = 50
     if page > 1:
