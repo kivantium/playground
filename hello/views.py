@@ -5,6 +5,7 @@ from django.utils import translation
 from django.http import HttpResponse, JsonResponse
 from django.db.models import Count
 from django.utils.timezone import make_aware
+from django.http import QueryDict
 
 import datetime
 import tweepy
@@ -275,14 +276,30 @@ def report(request, status_id):
 
         image_entry_list = ImageEntry.objects.filter(status_id=status_id)
 
-        if not image_entry_list:
-            return HttpResponse("Status {} is not registered.".format(status_id))
+        dic = QueryDict(request.body, encoding='utf-8')
+        report_type = dic.get('report_type')
 
-        for entry in image_entry_list:
-            entry.is_illust = False
-            entry.save()
+        if report_type == "not_illust":
+            if not image_entry_list:
+                return HttpResponse("Status {} is not registered.".format(status_id))
 
-        return HttpResponse("Deleted status {}.".format(status_id))
+            for entry in image_entry_list:
+                entry.is_illust = False
+                entry.save()
+
+            return HttpResponse("Deleted status {}.".format(status_id))
+        elif report_type == "not_safe":
+            for entry in image_entry_list:
+                try:
+                    safe = Tag.objects.get(name='safe', tag_type='IV')
+                    entry.tags.remove(safe)
+                except:
+                    pass
+                questionable = Tag.objects.get(name='questionable', tag_type='IV')
+                entry.tags.add(questionable)
+            return HttpResponse("Changed safe tag for status {}.".format(status_id))
+        else:
+            return HttpResponse("Unknown report for status {}.".format(status_id))
     else:
         return HttpResponse("You must use POST to report status {}.".format(status_id))
 

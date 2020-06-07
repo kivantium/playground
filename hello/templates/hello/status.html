@@ -78,8 +78,21 @@
       <button type="submit" class="btn btn-primary">追加</button>
     </form>
     <hr>
-    <p>{% trans "このツイートがイラストを含まない場合は報告してください" %}</p>
-    <button type="button" id="report" class="btn btn-danger">{% trans "報告する" %}</button>
+    <p>{% trans "この画像の情報が間違っている場合は報告してください" %}</p>
+    <form action="{% url 'report' status_id %}" method="post" id="report-form">
+      {% csrf_token %}
+      <div class="form-group">
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="report_type" id="radio_illust" value="not_illust" checked>
+        <label class="form-check-label" for="radio_illust">{% trans "この画像はイラストではありません" %}</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input class="form-check-input" type="radio" name="report_type" id="radio_nsfw" value="not_safe">
+        <label class="form-check-label" for="radio_nsfw">{% trans "この画像はNSFWです" %}</label>
+      </div>
+      </div>
+      <button type="submit" id="report" class="btn btn-danger">{% trans "報告する" %}</button>
+    </form>
     <hr>
     <h3 class="h6 mt-5">{% trans "タグについて" %}</h3>
     <ul>
@@ -129,12 +142,16 @@
   });
 
 
-  $('#report').click(function() {
+  $("#report-form").on("submit", function(event) {
     if(confirm('{% trans "このツイートを報告しますか？" %}')) {
       var csrftoken = getCookie('csrftoken');
+      event.preventDefault();
       $.ajax({
         type: "POST",
         url:'{% url 'report'  status_id %}',
+        data: {
+          "report_type": $('input:radio[name="report_type"]:checked').val()
+        },
         contentType: "application/json",
         beforeSend: function(xhr, settings) {
           if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
@@ -151,6 +168,7 @@
     } else {
       return false;
     }
+    return false;
   });
 </script>
 {% endblock %}
