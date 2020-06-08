@@ -36,12 +36,12 @@
           <button type="submit" class="btn btn-secondary mb-2">{% trans "検索" %}</button>
         </div>
       </form>
-      <p><a id="search_desc" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-caret-right" id="toggle-icon" aria-hidden="true"></i> 検索について</a></p>
+      <p><a id="search_desc" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample"><i class="fa fa-caret-right" id="toggle-icon" aria-hidden="true"></i> {% trans "検索について" %}</a></p>
       <div class="collapse" id="collapseExample">
         <dl>
-          <dt>キーワード検索</dt><dl>登録されたツイートをキーワードで全文検索します。AND検索等には対応していないので、スペースも含めてそのまま検索されます。</dl>
-          <dt>タグ検索</dt><dl>画像につけられたタグで検索します。タグにはIllustration2Vecによるタグ・ツイートに含まれるハッシュタグ・ユーザー設定タグの3種類があります。AND検索等はまだ実装していません。</dl>
-          <dt>Tweet ID検索</dt><dl>Tweet IDで検索します。IDは各ツイートのURLから分かります ( <code>https://twitter.com/username/status/XXXXXXXXXXXXXXXXXXX</code> の <code>XXXXXX</code> )<br>登録されていない画像ツイートを検索すると新しく登録されます。</dl>
+          <dt>{% trans "キーワード検索" %}</dt><dl>{% blocktrans %}登録されたツイートをキーワードで全文検索します。AND検索等には対応していないので、スペースも含めてそのまま検索されます。{% endblocktrans %}</dl>
+          <dt>{% trans "タグ検索" %}</dt><dl>{% blocktrans %}画像につけられたタグで検索します。タグにはIllustration2Vecによるタグ・ツイートに含まれるハッシュタグ・ユーザー設定タグの3種類があります。AND検索等はまだ実装していません。{% endblocktrans %}</dl>
+          <dt>{% trans "Tweet ID検索" %}</dt><dl>{% blocktrans %}Tweet IDで検索します。IDは各ツイートのURLから分かります ( <code>https://twitter.com/username/status/XXXXXXXXXXXXXXXXXXX</code> の <code>XXXXXX</code> )<br>登録されていない画像ツイートを検索すると新しく登録されます。{% endblocktrans %}</dl>
         </dt>
       </div>
 
@@ -74,7 +74,7 @@
         <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
         {% for entry in new_image_entry_list %}
             <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}" alt="{% trans "新しく投稿されたイラスト" %}"></a>
+              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}:small" alt="{% trans "新しく投稿されたイラスト" %}"></a>
             </div>
         {% endfor %}
       </div>
@@ -89,7 +89,7 @@
         <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
         {% for entry in image_entry_list %}
             <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}" alt="{% trans "新しく登録されたイラスト" %}"></a>
+              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}:small" alt="{% trans "新しく登録されたイラスト" %}"></a>
             </div>
         {% endfor %}
       </div>
@@ -104,7 +104,7 @@
         <div class="grid-sizer col-6 col-sm-4 col-md-3 col-lg-2"></div>
         {% for entry in popular_image_entry_list %}
             <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
-              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}" alt="{% trans "デイリーランキング" %}"></a>
+              <a href="{% url 'status' entry.status_id %}"><img src="{{entry.media_url}}:small" alt="{% trans "デイリーランキング" %}"></a>
             </div>
         {% endfor %}
       </div>
@@ -119,8 +119,8 @@
 {% endblock %}
 
 {% block script %}
-<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js"></script>
 <script>
   var $grid = $('.grid').masonry({
     itemSelector: '.grid-item',

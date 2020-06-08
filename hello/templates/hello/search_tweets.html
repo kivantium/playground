@@ -1,7 +1,7 @@
 {% extends 'hello/base.html' %}
 {% load i18n %}
 
-{% block page_title%}{% block twitter_title %}{% block og_title %}{{ tag_name }}{% trans "のイラスト検索結果" %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
+{% block page_title%}{% block twitter_title %}{% block og_title %}{% blocktrans %}{{ tag_name }}のイラスト検索結果" {% endblocktrans %} - {% trans "にじさーち" %}{% endblock %}{% endblock %}{% endblock %}
 
 {% block meta %}
 <meta name="robots" content="noindex">

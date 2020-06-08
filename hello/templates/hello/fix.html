@@ -16,7 +16,7 @@
         {% for entry in image_entry_list %}
             <div class="grid-item col-4 col-md-3 col-lg-2">
               <a href="{% url 'status' entry.status_id %}">
-                <img src="{{entry.media_url}}">
+                <img src="{{entry.media_url}}:small">
               </a>
             </div>
         {% endfor %}
@@ -32,8 +32,8 @@
 {% endblock %}
 
 {% block script %}
-<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js"></script>
 <script>
   var $grid = $('.grid').masonry({
     itemSelector: '.grid-item',
@@ -43,14 +43,6 @@
   });
   $grid.imagesLoaded().progress(function() {
     $grid.masonry('layout');
-  });
-  window.addEventListener( "pageshow", function ( event ) {
-    var historyTraversal = event.persisted || 
-      ( typeof window.performance != "undefined" && 
-        window.performance.navigation.type === 2 );
-    if ( historyTraversal ) {
-      window.location.reload();
-    }
   });
 </script>
 {% endblock %}

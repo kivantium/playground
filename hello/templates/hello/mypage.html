@@ -10,11 +10,8 @@
 {% block content %}
 <section class="section">
   <div class="container mt-5">
-    {% if request.user.is_authenticated %}
-    <h2 class="h5">@{{ request.user.username }} さんのマイページ</h2>
-    {% else %}
-    <h2 class="h5">マイページ</h2>
-    {% endif %}
+    <h2 class="h5">{% trans "マイページ" %}</h2>
+    <p>{% trans "マイページではいいね画像を確認できます" %}</p>
     <div class="d-none d-md-block my-5">
       <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
       <ins class="adsbygoogle"
@@ -39,7 +36,6 @@
     </div>
     {% else %}
 
-    <p>マイページではいいね画像を確認できます</p>
     <ul class="nav nav-tabs justify-content-center mb-4">
       <li class="nav-item">
         <a class="nav-link active" href="{% url 'mypage' %}">{% trans "登録済み画像" %}</a>
@@ -56,7 +52,7 @@
       {% for entry in image_entry_list %}
           <div class="grid-item col-6 col-sm-4 col-md-3 col-lg-2">
             <a href="{% url 'status' entry.status_id %}">
-              <img src="{{entry.media_url}}" alt={% trans "イラスト" %}>
+              <img src="{{entry.media_url}}:small" alt={% trans "イラスト" %}>
             </a>
           </div>
       {% endfor %}
@@ -75,8 +71,8 @@
 {% endblock %}
 
 {% block script %}
-<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
-<script src="https://unpkg.com/imagesloaded@4/imagesloaded.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.4/imagesloaded.pkgd.min.js"></script>
 <script>
   var $grid = $('.grid').masonry({
     itemSelector: '.grid-item',

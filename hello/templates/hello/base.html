@@ -75,10 +75,10 @@
           </li>
         </ul>
         {% if request.user.is_authenticated %}
-        <button type="button" class="btn btn-light" onclick="location.href='/logout'">ログアウト</button>
+        <button type="button" class="btn btn-light" onclick="location.href='/logout'">{% trans "ログアウト" %}</button>
         {% else %}
         <button type="button" class="btn btn-primary" onclick="location.href='{% url 'social:begin' 'twitter' %}'">
-          <span class="icon"><i class="fab fa-twitter"></i></span><span> Twitterでログイン</span>
+          <span class="icon"><i class="fab fa-twitter"></i></span><span> {% trans "Twitterでログイン" %}</span>
         </button>
         {% endif %}
       </div>
