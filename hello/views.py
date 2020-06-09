@@ -46,8 +46,8 @@ ort_session = onnxruntime.InferenceSession(
 def index(request):
     i2vtag_list = Tag.objects.all().filter(tag_type='IV').annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:18]
     i2vtag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in i2vtag_list]
-    hashtag_list = Tag.objects.all().filter(tag_type='HS').annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:6]
-    hashtag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtag_list]
+    hashtag_list = Tag.objects.all().filter(tag_type='HS').annotate(tag_count=Count('imageentry')).order_by('-tag_count')[:50]
+    hashtag_list = [{"name": t.name, "name_escape": quote(t.name)} for t in hashtag_list if len(t.name)<10][:12]
     safe_tag = Tag.objects.get(name='safe')
     image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-id')[:12]
     new_image_entry_list = ImageEntry.objects.filter(is_illust=True, tags=safe_tag, image_number=0).order_by('-created_at')[:12]

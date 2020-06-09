@@ -23,11 +23,10 @@
     {% endif %}
     <hr>
     <ul class="list-inline">
+      <li class="list-inline-item"><a href="{% url 'author' screen_name %}" class="badge badge-primary">@{{ screen_name }}</a></li>
       {% for tag in hashtags %}
       <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-info">{{tag.name}}</a></li>
       {% endfor %}
-    </ul>
-    <ul class="list-inline">
       {% for tag in usertags %}
       <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-success">{{tag.name}}</a></li>
       {% endfor %}
@@ -45,8 +44,6 @@
       </li>
       {% endfor %}
     </ul>
-
-
     {% else %}
     <hr>
     <p>新しいツイートのため情報を取得中です。数秒待ってから更新してください。</p>
