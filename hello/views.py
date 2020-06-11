@@ -65,26 +65,6 @@ def index(request):
 def about(request):
     return render(request, 'hello/about.html')
 
-def add(request, status_id):
-    if request.user.is_authenticated and request.user.username == 'kivantium':
-        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
-
-        if not image_entry_list:
-            url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
-            try:
-                urllib.request.urlopen(url).read()
-                image_entry_list = ImageEntry.objects.filter(status_id=status_id)
-            except:
-                return
-
-        for entry in image_entry_list:
-            entry.is_illust = True
-            entry.save()
-
-        return HttpResponse("Added status {}.".format(status_id))
-    else:
-        return HttpResponse("You are not allowed to run this operation.")
-
 def get_twitter_api():
     consumer_key = settings.SOCIAL_AUTH_TWITTER_KEY
     consumer_secret = settings.SOCIAL_AUTH_TWITTER_SECRET
@@ -279,7 +259,16 @@ def report(request, status_id):
         dic = QueryDict(request.body, encoding='utf-8')
         report_type = dic.get('report_type')
 
-        if report_type == "not_illust":
+        if report_type == "is_illust":
+            if not image_entry_list:
+                return HttpResponse("Status {} is not registered.".format(status_id))
+
+            for entry in image_entry_list:
+                entry.is_illust = True
+                entry.save()
+
+            return HttpResponse("Added status {}.".format(status_id))
+        elif report_type == "not_illust":
             if not image_entry_list:
                 return HttpResponse("Status {} is not registered.".format(status_id))
 
@@ -302,26 +291,6 @@ def report(request, status_id):
             return HttpResponse("Unknown report for status {}.".format(status_id))
     else:
         return HttpResponse("You must use POST to report status {}.".format(status_id))
-
-def delete(request, status_id):
-    if request.user.is_authenticated and request.user.username == 'kivantium':
-        image_entry_list = ImageEntry.objects.filter(status_id=status_id)
-
-        if not image_entry_list:
-            url = '{}://{}/register/{}'.format(request.scheme, request.get_host(), status_id)
-            try:
-                urllib.request.urlopen(url).read()
-                image_entry_list = ImageEntry.objects.filter(status_id=status_id)
-            except:
-                return
-
-        for entry in image_entry_list:
-            entry.is_illust = False
-            entry.save()
-
-        return HttpResponse("Deleted status {}.".format(status_id))
-    else:
-        return HttpResponse("You are not allowed to run this operation.")
 
 def fix(request):
     if not request.user.is_authenticated or request.user.username != 'kivantium':

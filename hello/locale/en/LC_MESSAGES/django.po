@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-06-08 21:31+0900\n"
+"POT-Creation-Date: 2020-06-11 19:01+0900\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -139,8 +139,8 @@ msgstr "Let's find illustrations posted on Twitter."
 msgid "全てのイラスト"
 msgstr "All illustrations"
 
-#: templates/hello/base.html:53 templates/hello/index.html:101
-#: templates/hello/index.html:107 templates/hello/ranking.html:4
+#: templates/hello/base.html:53 templates/hello/index.html:89
+#: templates/hello/index.html:95 templates/hello/ranking.html:4
 #: templates/hello/ranking.html:10
 msgid "デイリーランキング"
 msgstr "Daily ranking"
@@ -213,23 +213,23 @@ msgstr ""
 msgid "登録数の多いタグ"
 msgstr "Most registered tags"
 
-#: templates/hello/index.html:71 templates/hello/index.html:77
+#: templates/hello/index.html:59 templates/hello/index.html:65
 msgid "新しく投稿されたイラスト"
 msgstr "Newly posted illutrations"
 
-#: templates/hello/index.html:83
+#: templates/hello/index.html:71
 msgid "新しく投稿されたイラストをもっと見る"
 msgstr "See more newly posted illustrations"
 
-#: templates/hello/index.html:86 templates/hello/index.html:92
+#: templates/hello/index.html:74 templates/hello/index.html:80
 msgid "新しく登録されたイラスト"
 msgstr "Newly registered illustrations"
 
-#: templates/hello/index.html:98
+#: templates/hello/index.html:86
 msgid "新しく登録されたイラストをもっと見る"
 msgstr "See more newly registered illustrations"
 
-#: templates/hello/index.html:113
+#: templates/hello/index.html:101
 msgid "デイリーランキングをもっと見る"
 msgstr "See more daily ranking"
 
@@ -339,6 +339,10 @@ msgstr "Search result of %(tag_name)s"
 msgid "ツイート詳細"
 msgstr "Tweet details"
 
+#: templates/hello/status.html:28
+msgid "イラストではない"
+msgstr "Not a illustration"
+
 #: templates/hello/status.html:58
 #, python-format
 msgid "@%(screen_name)sさんのイラストをもっと見る"
@@ -348,23 +352,29 @@ msgstr "See more illustrations by @%(screen_name)s"
 msgid "この画像の情報が間違っている場合は報告してください"
 msgstr "If the information of this tweet is wrong, please report it."
 
-#: templates/hello/status.html:87
-msgid "この画像はイラストではありません"
+#: templates/hello/status.html:88
+#, fuzzy
+#| msgid "この画像はイラストではありません"
+msgid "この画像はイラストです"
 msgstr "This image is not an illustration"
 
 #: templates/hello/status.html:91
+msgid "この画像はイラストではありません"
+msgstr "This image is not an illustration"
+
+#: templates/hello/status.html:96
 msgid "この画像はNSFWです"
 msgstr "This image is NSFW."
 
-#: templates/hello/status.html:94
+#: templates/hello/status.html:99
 msgid "報告する"
 msgstr "Report"
 
-#: templates/hello/status.html:97
+#: templates/hello/status.html:102
 msgid "タグについて"
 msgstr "About tags"
 
-#: templates/hello/status.html:99
+#: templates/hello/status.html:104
 msgid ""
 "<span class=\"badge badge-info\">水色のタグ</span> はツイートに含まれるハッ"
 "シュタグを表します。"
@@ -372,7 +382,7 @@ msgstr ""
 "<span class=\"badge badge-info\">Blue tags</span> mean hashtags included in "
 "the tweet."
 
-#: templates/hello/status.html:100
+#: templates/hello/status.html:105
 msgid ""
 "<span class=\"badge badge-secondary\">灰色のタグ</span> はIllustration2Vecを"
 "用いて推定したタグを表します。画像ごとにタグ付けしているため、画像が複数ある"
@@ -381,17 +391,30 @@ msgstr ""
 "<span class=\"badge badge-secondary\">gray tags</span> mean tags estimated "
 "by Illustration2Vec. Each line corresponds to each image."
 
-#: templates/hello/status.html:146
+#: templates/hello/status.html:165
+#, fuzzy
+#| msgid "報告に失敗しました。"
+msgid "削除しました。"
+msgstr "Report failed."
+
+#: templates/hello/status.html:169 templates/hello/status.html:192
+#: templates/hello/status.html:216 templates/hello/status.html:244
+msgid "報告に失敗しました。"
+msgstr "Report failed."
+
+#: templates/hello/status.html:188
+#, fuzzy
+#| msgid "報告に失敗しました。"
+msgid "追加しました。"
+msgstr "Report failed."
+
+#: templates/hello/status.html:196 templates/hello/status.html:224
 msgid "このツイートを報告しますか？"
 msgstr "Do you want to report this tweet?"
 
-#: templates/hello/status.html:163
+#: templates/hello/status.html:213 templates/hello/status.html:241
 msgid "報告が完了しました。ご協力ありがとうございます。"
 msgstr "Report completed. Thank you for your cooperation."
-
-#: templates/hello/status.html:166
-msgid "報告に失敗しました。"
-msgstr "Report failed."
 
 #~ msgid "@%(request.user.username)s さんのマイページ"
 #~ msgstr "@%(request.user.username)s 's page"

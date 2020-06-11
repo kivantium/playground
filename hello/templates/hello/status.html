@@ -16,14 +16,17 @@
     <div class="clearfix">
       <div class="float-right">
         <span>{% for b in is_illust %} {% if b %} True {% else %} False {% endif %} {% endfor %}</span>
-        <a class="btn btn-danger" href="{% url 'delete' status_id %}">削除する</a>
-        <a class="btn btn-success" href="{% url 'add' status_id %}">追加する</a>
+        <button class="btn btn-danger" id="delete-button">削除する</button>
+        <button class="btn btn-success" id="add-button">追加する</button>
       </div>
     </div>
     {% endif %}
     <hr>
     <ul class="list-inline">
       <li class="list-inline-item"><a href="{% url 'author' screen_name %}" class="badge badge-primary">@{{ screen_name }}</a></li>
+      {% if False in is_illust %}
+      <li class="list-inline-item"><span class="badge badge-danger">{% trans "イラストではない" %}</span></li>
+      {% endif %}
       {% for tag in hashtags %}
       <li class="list-inline-item"><a href="{% url 'search' %}?tag={{tag.name_escape}}" class="badge badge-info">{{tag.name}}</a></li>
       {% endfor %}
@@ -80,8 +83,13 @@
       {% csrf_token %}
       <div class="form-group">
       <div class="form-check form-check-inline">
+      {% if False in is_illust %}
+        <input class="form-check-input" type="radio" name="report_type" id="radio_illust" value="is_illust" checked>
+        <label class="form-check-label" for="radio_illust">{% trans "この画像はイラストです" %}</label>
+      {% else %}
         <input class="form-check-input" type="radio" name="report_type" id="radio_illust" value="not_illust" checked>
         <label class="form-check-label" for="radio_illust">{% trans "この画像はイラストではありません" %}</label>
+      {% endif %}
       </div>
       <div class="form-check form-check-inline">
         <input class="form-check-input" type="radio" name="report_type" id="radio_nsfw" value="not_safe">
@@ -138,6 +146,52 @@
     }
   });
 
+  $('#delete-button').on('click', function() {
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: "POST",
+      url:'{% url 'report'  status_id %}',
+      data: {
+        "report_type": "not_illust", 
+      },
+      contentType: "application/json",
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    })
+      .done( (data) => {
+        alert('{% trans "削除しました。" %}');
+        document.location.reload();
+      })
+      .fail( (data) => {
+        alert('{% trans "報告に失敗しました。" %}');
+      })
+  });
+  $('#add-button').on('click', function() {
+    var csrftoken = getCookie('csrftoken');
+    $.ajax({
+      type: "POST",
+      url:'{% url 'report'  status_id %}',
+      data: {
+        "report_type": "is_illust", 
+      },
+      contentType: "application/json",
+      beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+      }
+    })
+      .done( (data) => {
+        alert('{% trans "追加しました。" %}');
+        document.location.reload();
+      })
+      .fail( (data) => {
+        alert('{% trans "報告に失敗しました。" %}');
+      })
+  });
 
   $("#report-form").on("submit", function(event) {
     if(confirm('{% trans "このツイートを報告しますか？" %}')) {
