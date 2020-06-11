@@ -199,7 +199,7 @@ def ajax_tweets(request, screen_name):
                 continue
             if 'media' not in status.entities:
                 continue
-            entries = ImageEntry.objects.filter(status_id=status.id)
+            entries = ImageEntry.objects.filter(status_id=status.id, is_illust=True)
             if entries:
                 registered = True
             else:
@@ -471,7 +471,7 @@ def ajax_search_tweets(request):
                 status = status.retweeted_status
             if 'media' not in status.entities:
                 continue
-            entries = ImageEntry.objects.filter(status_id=status.id)
+            entries = ImageEntry.objects.filter(status_id=status.id, is_illust=True)
             if entries:
                 registered = True
             else:

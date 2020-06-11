@@ -87,7 +87,7 @@
         col += '<blockquote class="twitter-tweet" data-conversation="none">'
         col += '<a href="https://twitter.com/user/status/'+ tweet.id_str + '"></a></blockquote>\n';
         if(tweet.registered) {
-          col += '<span class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>';
+          col += '<a href="/status/' + tweet.id_str + '/" target="_blank" class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>';
         } else {
           col += '<a href="/status/' + tweet.id_str + '/" target="_blank" class="mt-3 btn btn-success">{% trans "登録する" %}</a>'
         }
