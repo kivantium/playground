@@ -121,6 +121,13 @@ def author(request, screen_name):
     image_entry_list = ImageEntry.objects.filter(is_illust=True, author_screen_name=screen_name)
     count = image_entry_list.count()
 
+    if order == 'id':
+        image_entry_list = image_entry_list.order_by('-id')
+    elif order == 'created_at':
+        image_entry_list = image_entry_list.order_by('-created_at')
+    else:
+        image_entry_list = image_entry_list.order_by('-like_count')
+
     n = 50
     if page > 1:
         previous_page = request.path + '?page={}&order={}'.format(page-1, order)
@@ -204,7 +211,7 @@ def ajax_tweets(request, screen_name):
                 registered = True
             else:
                 registered = False
-            tweet_list.append({"id_str": status.id_str, "registered": registered})
+            tweet_list.append({"id_str": status.id_str, "screen_name": status.author.screen_name, "registered": registered})
 
         d = {
             'status': 'OK',
@@ -476,7 +483,7 @@ def ajax_search_tweets(request):
                 registered = True
             else:
                 registered = False
-            tweet_list.append({"id_str": str(status.id), "registered": registered})
+            tweet_list.append({"id_str": str(status.id), "screen_name": status.author.screen_name, "registered": registered})
 
         d = {
             'status': 'OK',

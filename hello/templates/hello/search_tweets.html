@@ -77,11 +77,10 @@
       'type': 'GET',
     }).done( (res) => {
       if(res.status == 'OK') {
-        console.log(res.tweet_list);
         res.tweet_list.forEach(tweet => {
           var col = '<div class="col-12 col-md-6 col-lg-4 mb-5 text-center">\n'
           col += '<blockquote class="twitter-tweet" data-conversation="none">'
-          col += '<a href="https://twitter.com/user/status/'+ tweet.id_str + '"></a></blockquote>\n';
+          col += '<a href="https://twitter.com/' + tweet.screen_name + '/status/'+ tweet.id_str + '"></a></blockquote>\n';
           if(tweet.registered) {
             col += '<a href="/status/' + tweet.id_str + '/" target="_blank" class="mt-3 btn btn-secondary">{% trans "登録済み" %}</a>';
           } else {
